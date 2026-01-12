@@ -1,0 +1,113 @@
+name: "🏗️ Architecture Decision Record"
+description: "Document an architecture decision"
+title: "[ADR] "
+labels: ["adr", "architecture"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Architecture Decision Record (ADR)
+        
+        Document a significant architecture decision for the project.
+
+  - type: input
+    id: title
+    attributes:
+      label: "Decision Title"
+      description: "Short, descriptive title"
+      placeholder: "Use PostgreSQL for primary database"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: "Status"
+      description: "Current status of this decision"
+      options:
+        - "Proposed"
+        - "Accepted"
+        - "Deprecated"
+        - "Superseded"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context"
+      description: "What is the issue that we're seeing that is motivating this decision?"
+      placeholder: |
+        Describe the context and problem statement...
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision
+    attributes:
+      label: "Decision"
+      description: "What is the change that we're proposing and/or doing?"
+      placeholder: |
+        We will use...
+        We will implement...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "What other options were considered?"
+      placeholder: |
+        1. **Alternative A**: Description
+           - Pros: ...
+           - Cons: ...
+        
+        2. **Alternative B**: Description
+           - Pros: ...
+           - Cons: ...
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: "Consequences"
+      description: "What becomes easier or harder as a result?"
+      placeholder: |
+        ### Positive
+        - ...
+        
+        ### Negative
+        - ...
+        
+        ### Risks
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: compliance
+    attributes:
+      label: "Compliance & Security"
+      description: "Security, compliance, or regulatory considerations"
+      placeholder: |
+        - GDPR implications: ...
+        - Security considerations: ...
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: "Implementation Notes"
+      description: "How will this be implemented?"
+      placeholder: |
+        - Phase 1: ...
+        - Phase 2: ...
+        - Migration plan: ...
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "References"
+      description: "Related ADRs, documentation, or resources"
+      placeholder: |
+        - ADR-001: Related decision
+        - https://docs.example.com

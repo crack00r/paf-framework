@@ -1,0 +1,104 @@
+name: "📊 Sprint Retrospective"
+description: "Document sprint retrospective findings"
+title: "[RETRO] Sprint "
+labels: ["retrospective"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Sprint Retrospective
+        
+        Document the outcomes of the sprint retrospective.
+
+  - type: input
+    id: sprint
+    attributes:
+      label: "Sprint"
+      description: "Which sprint is this for?"
+      placeholder: "Sprint 1"
+    validations:
+      required: true
+
+  - type: input
+    id: dates
+    attributes:
+      label: "Sprint Dates"
+      description: "Sprint duration"
+      placeholder: "2024-01-01 to 2024-01-14"
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Sprint Summary"
+      description: "Brief overview of the sprint"
+      placeholder: |
+        - Stories completed: X/Y
+        - Velocity: Z points
+        - Goals achieved: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: went_well
+    attributes:
+      label: "What Went Well 🎉"
+      description: "Positive aspects of the sprint"
+      placeholder: |
+        - Team collaboration was excellent
+        - Deployment went smoothly
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvements
+    attributes:
+      label: "What Could Be Improved 🔧"
+      description: "Areas for improvement"
+      placeholder: |
+        - Code reviews took too long
+        - Requirements were unclear
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: action_items
+    attributes:
+      label: "Action Items 📋"
+      description: "Concrete actions for next sprint"
+      placeholder: |
+        - [ ] Action 1 - Owner: @person
+        - [ ] Action 2 - Owner: @person
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: "Sprint Metrics"
+      description: "Key metrics from the sprint"
+      placeholder: |
+        | Metric | Target | Actual |
+        |--------|--------|--------|
+        | Velocity | 20 | 18 |
+        | Bug Rate | <5% | 3% |
+        | Test Coverage | >80% | 85% |
+
+  - type: textarea
+    id: shoutouts
+    attributes:
+      label: "Shoutouts 🌟"
+      description: "Recognition for team members"
+      placeholder: |
+        - @person for helping with the complex migration
+        - @person for excellent documentation
+
+  - type: textarea
+    id: next_sprint
+    attributes:
+      label: "Next Sprint Focus"
+      description: "Key focus areas for next sprint"
+      placeholder: |
+        - Focus on performance improvements
+        - Clear technical debt from backlog

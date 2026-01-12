@@ -1,0 +1,186 @@
+# PAF GitHub Projects Configuration
+# These project boards are created by Gideon during setup
+last_updated: "2026-01-12"
+
+projects:
+  # =========================================================================
+  # 1. MAIN SPRINT BOARD
+  # =========================================================================
+  - name: "📋 PAF Sprint Board"
+    description: "Main development sprint tracking"
+    columns:
+      - name: "Backlog"
+        description: "Items waiting to be scheduled"
+      - name: "Ready"
+        description: "Ready for implementation"
+      - name: "In Progress"
+        description: "Currently being worked on"
+      - name: "Review"
+        description: "In code review"
+      - name: "Testing"
+        description: "Being tested"
+      - name: "Done"
+        description: "Completed"
+      - name: "Blocked"
+        description: "Blocked by dependencies"
+    agents:
+      - emma
+      - sam
+      - luna
+      - tom
+      - leo
+      - nina      # Triage Lead - belongs to Sprint Board
+      - ben
+      - michael
+      - kai
+      - sarah
+      - anna
+      - chris
+      - dan
+      - rachel
+      - perf
+      - miggy
+      - monitor
+      - george
+      - otto      # Optimization Lead - also in Tech Debt Board (verified by config-fixer)
+      - docu
+
+  # =========================================================================
+  # 2. SECURITY BOARD
+  # =========================================================================
+  - name: "🔒 PAF Security Board"
+    description: "Security findings and vulnerabilities"
+    columns:
+      - name: "New"
+        description: "Newly reported findings"
+      - name: "Triaged"
+        description: "Assessed and prioritized"
+      - name: "Remediation"
+        description: "Fix in progress"
+      - name: "Verification"
+        description: "Fix being verified"
+      - name: "Resolved"
+        description: "Issue resolved"
+    agents:
+      - alex
+      - scanner
+      - nina
+
+  # =========================================================================
+  # 3. PRODUCT BACKLOG
+  # =========================================================================
+  - name: "📊 PAF Product Backlog"
+    description: "Feature requests and product ideas"
+    columns:
+      - name: "Ideas"
+        description: "New ideas and suggestions"
+      - name: "Researching"
+        description: "Being researched"
+      - name: "Prioritized"
+        description: "Assessed and prioritized"
+      - name: "Ready"
+        description: "Ready for planning"
+      - name: "Scheduled"
+        description: "Scheduled for sprint"
+    agents:
+      - maya
+      - iris
+      - ava
+      - kai
+
+  # =========================================================================
+  # 4. ARCHITECTURE BOARD
+  # =========================================================================
+  - name: "🏗️ PAF Architecture"
+    description: "Architecture Decision Records (ADRs)"
+    columns:
+      - name: "Proposed"
+        description: "New proposals"
+      - name: "Discussion"
+        description: "Under discussion"
+      - name: "Approved"
+        description: "Approved for implementation"
+      - name: "Implemented"
+        description: "Implemented in codebase"
+      - name: "Superseded"
+        description: "Replaced by newer decision"
+    agents:
+      - sophia
+      - david
+      - michael
+
+  # =========================================================================
+  # 5. BUG TRACKER
+  # =========================================================================
+  - name: "🐛 PAF Bug Tracker"
+    description: "Bugs, incidents, and user reports"
+    columns:
+      - name: "Reported"
+        description: "Newly reported"
+      - name: "Confirmed"
+        description: "Bug confirmed"
+      - name: "In Progress"
+        description: "Fix in progress"
+      - name: "Fixed"
+        description: "Fix completed"
+      - name: "Verified"
+        description: "Fix verified"
+    agents:
+      - tina
+      - inci
+      - feedback
+      - bug-fixer
+      - validator    # Added by config-fixer: Build verification agent
+
+  # =========================================================================
+  # 6. TECH DEBT BOARD
+  # =========================================================================
+  - name: "🔧 PAF Tech Debt"
+    description: "Technical debt and refactoring"
+    columns:
+      - name: "Identified"
+        description: "Newly identified debt"
+      - name: "Prioritized"
+        description: "Assessed and prioritized"
+      - name: "In Progress"
+        description: "Being addressed"
+      - name: "Resolved"
+        description: "Debt resolved"
+    agents:
+      - max
+      - otto      # Optimization Lead - also in Sprint Board (verified by config-fixer)
+      - stan
+
+  # =========================================================================
+  # 7. RELEASE PIPELINE
+  # =========================================================================
+  - name: "🚀 PAF Release Pipeline"
+    description: "Release management pipeline"
+    columns:
+      - name: "Staging"
+        description: "In staging environment"
+      - name: "QA"
+        description: "QA approval pending"
+      - name: "Ready"
+        description: "Ready for release"
+      - name: "Deploying"
+        description: "Deployment in progress"
+      - name: "Released"
+        description: "Successfully released"
+    agents:
+      - tony
+      - rel
+
+# =========================================================================
+# MILESTONES
+# =========================================================================
+milestones:
+  - name: "Sprint 1"
+    description: "First sprint"
+    duration_days: 14
+  - name: "Backlog"
+    description: "Items for future sprints"
+    due_date: null
+  - name: "Next Release"
+    description: "Next release milestone"
+    due_date: null

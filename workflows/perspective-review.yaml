@@ -1,0 +1,41 @@
+# PAF Workflow: Perspective Review
+# Fast 10-perspective review for existing code or features
+
+name: perspective-review
+version: 2.0.0
+description: "10-perspective review with automatic aggregation"
+
+default_timeout: 180
+
+# All agents must follow ~/.paf/docs/AGENT_PROTOCOL.md!
+
+phases:
+  - id: perspectives
+    name: "10-Perspective Review"
+    description: "Parallel review from 10 different viewpoints"
+    agents:
+      - alex    # 🔒 Security Analyst
+      - emma    # ⚡ Performance Engineer
+      - sam     # 🎨 UX Designer
+      - david   # 🔀 Solutions Architect (Scalability)
+      - max     # 🔧 Senior Developer (Maintainability)
+      - luna    # ♿ Accessibility Expert
+      - tom     # 💰 FinOps Engineer (Cost)
+      - nina    # 🎯 Technical PM (Triage)
+      - leo     # 📚 Technical Writer (Documentation)
+      - ava     # 💡 Innovation Lead
+    mode: parallel
+    communication: .paf/COMMS.md
+    
+  - id: aggregation
+    name: "Aggregation"
+    description: "Summary of all perspectives"
+    agents:
+      - george  # 📋 Scrum Master & Aggregator
+    mode: sequential
+    depends_on: [perspectives]
+    communication: .paf/COMMS.md
+
+aggregator: george
+
+protocol: ~/.paf/docs/AGENT_PROTOCOL.md

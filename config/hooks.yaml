@@ -1,0 +1,179 @@
+# PAF Hook System Configuration
+#
+# Defines lifecycle hooks for agent coordination.
+last_updated: "2026-01-12"
+# NOTE: This is PAF-internal configuration, NOT a Claude Code 2.1.x hook file.
+# Claude Code 2.1.x hooks are defined in skill frontmatter (see .claude/skills/).
+# This file uses PAF's own hook schema with 'action:' fields for agent behavior.
+
+# =============================================================================
+# GLOBAL HOOKS (Apply to all agents)
+# =============================================================================
+global:
+  PreToolUse:
+    # Log all tool calls to COMMS.md
+    - name: log_tool_call
+      enabled: true
+      action: |
+        Update COMMS.md with tool call:
+        - Agent: {agent_name}
+        - Tool: {tool_name}
+        - Timestamp: {timestamp}
+
+    # Validate tool is allowed for agent
+    - name: validate_tool_permission
+      enabled: true
+      config: config/agent-tools.yaml
+      action: |
+        Check if {tool_name} is in allowedTools for {agent_name}.
+        If not allowed, return { "decision": "deny", "reason": "Tool not permitted for this agent" }
+
+  PostToolUse:
+    # Track tool execution metrics
+    - name: track_metrics
+      enabled: true
+      action: |
+        Record in metrics:
+        - Agent: {agent_name}
+        - Tool: {tool_name}
+        - Duration: {duration_ms}
+        - Success: {success}
+
+    # Update agent status on error
+    - name: handle_error
+      enabled: true
+      # Note: Error condition should be checked in hook implementation
+      action: |
+        Update COMMS.md status to BLOCKED if error occurred.
+        Add error details to agent section.
+        Notify @ORCHESTRATOR of blocker.
+
+  Stop:
+    # Cleanup on agent completion
+    - name: finalize_agent
+      enabled: true
+      action: |
+        Update COMMS.md:
+        - Set status to COMPLETED
+        - Add final timestamp
+        - Write handoff to @ORCHESTRATOR
+
+# =============================================================================
+# AGENT-SPECIFIC HOOKS
+# =============================================================================
+agents:
+  # CTO Orchestrator hooks
+  cto:
+    PreToolUse:
+      - name: check_bootstrap
+        enabled: true
+        once: true  # Run only once per session (Claude Code 2.1.0+)
+        action: |
+          Before spawning agents, verify:
+          1. .paf/GITHUB_SYSTEM.md exists (spawn Gideon if not)
+          2. COMMS.md is initialized
+          3. Config files are valid
+
+    PostToolUse:
+      - name: track_spawned_agents
+        enabled: true
+        # Note: "condition" evaluation should be done in application layer
+        action: |
+          Add spawned agent to tracking list.
+          Update COMMS.md orchestration status.
+
+    Stop:
+      - name: generate_summary
+        enabled: true
+        action: |
+          Spawn George for aggregation.
+          Wait for all agents to complete.
+          Generate executive summary.
+
+  # Perspective agents hooks
+  alex:
+    PostToolUse:
+      - name: security_finding_alert
+        enabled: true
+        # Note: Condition "finding.severity == 'CRITICAL'" should be checked in action
+        action: |
+          If finding severity is CRITICAL:
+          - Immediately create GitHub issue for critical finding.
+          - Add to Security Board with P0 priority.
+          - Notify @ORCHESTRATOR of critical security issue.
+
+  emma:
+    PostToolUse:
+      - name: performance_threshold_alert
+        enabled: true
+        # Note: Condition "metric.value > threshold" should be checked in action
+        action: |
+          If metric value exceeds threshold:
+          - Flag performance regression.
+          - Create GitHub issue if threshold exceeded.
+
+  # Aggregator hooks
+  george:
+    PreToolUse:
+      - name: wait_for_agents
+        enabled: true
+        once: true  # Run only once per session (Claude Code 2.1.0+)
+        action: |
+          Poll COMMS.md until all expected agents are COMPLETED or BLOCKED.
+          Timeout after 10 minutes.
+
+    Stop:
+      - name: create_sprint_summary
+        enabled: true
+        action: |
+          Create GitHub issue with sprint summary.
+          Update all project boards.
+          Archive completed issues.
+
+# =============================================================================
+# HOOK TEMPLATES (Reusable)
+# =============================================================================
+templates:
+  # Template for agents that create findings
+  github_issue_on_finding:
+    PostToolUse:
+      - name: create_github_issue
+        enabled: true
+        # Note: Condition "findings.length > 0 && severity in ['CRITICAL', 'HIGH']"
+        # should be evaluated in action implementation
+        action: |
+          For each HIGH/CRITICAL finding:
+          gh issue create \
+            --title "[{prefix}-{id}] {title}" \
+            --label "finding,{agent_label},{category},{priority}" \
+            --body "{description}\n\n**Recommendation:** {recommendation}"
+
+  comms_status_update:
+    PostToolUse:
+      - name: update_comms_status
+        enabled: true
+        action: |
+          Update COMMS.md agent section:
+          <!-- AGENT:{AGENT_NAME}:START -->
+          ### Status: {status}
+          ### Timestamp: {timestamp}
+          ...
+          <!-- AGENT:{AGENT_NAME}:END -->
+
+# =============================================================================
+# HOOK EXECUTION ORDER
+# =============================================================================
+# Note: Claude Code 2.1.x executes hooks in definition order.
+# The following documents the intended execution order for implementation reference.
+execution:
+  PreToolUse:
+    order: [validate_tool_permission, log_tool_call, agent_specific]
+    # Note: "fail_fast" behavior should be implemented at application level
+
+  PostToolUse:
+    order: [track_metrics, handle_error, agent_specific]
+    # Note: Continue even on errors (implement in application layer)
+
+  Stop:
+    order: [finalize_agent, agent_specific]
+    timeout_ms: 600000  # 10 minutes - max limit for agent spawning (fixed by config-fixer)

@@ -1,0 +1,22 @@
+{
+  "name": "paf-nested-subagent",
+  "owner": {
+    "name": "PAF Framework"
+  },
+  "description": "Nested subagent plugin for unlimited agent hierarchy in PAF Framework",
+  "plugins": [
+    {
+      "name": "paf-nested-subagent",
+      "source": "./",
+      "description": "Nested subagent that spawns fresh Claude processes with full tool access. Enables unlimited nesting for PAF's 38-agent architecture.",
+      "version": "1.0.3",
+      "mcpServers": {
+        "nested-subagent": {
+          "command": "node",
+          "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-server/dist/index.mjs"]
+        }
+      },
+      "strict": false
+    }
+  ]
+}

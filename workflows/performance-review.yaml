@@ -1,0 +1,63 @@
+# PAF Workflow: Performance Review
+# Optimized for performance analysis
+
+name: performance-review
+description: Deep Performance Analysis Workflow
+version: 2.0.0
+
+# Protocol and communication
+protocol: ~/.paf/docs/AGENT_PROTOCOL.md
+communication: .paf/COMMS.md
+
+# Workflow-specific settings
+settings:
+  parallel_execution: true
+  timeout_per_agent: 300  # 5 minutes per agent
+  aggregation: required
+
+# Phases
+phases:
+  - id: performance-analysis
+    name: "Performance Deep Dive"
+    description: "Comprehensive performance analysis"
+    mode: parallel
+    agents:
+      - emma     # ⚡ Performance Engineer - Lead role
+      - perf     # Performance Analyzer - Benchmarks
+      - david    # 🔀 Scalability - Load & Scale
+      - tom      # 💰 Cost - Resource Efficiency
+      - max      # 🔧 Maintainability - Code Efficiency
+    communication: .paf/COMMS.md
+
+  - id: infrastructure
+    name: "Infrastructure Review"
+    description: "Infrastructure performance"
+    mode: parallel
+    depends_on: [performance-analysis]
+    agents:
+      - tony     # DevOps - CI/CD Performance
+      - scanner  # Security - Performance Impact of Security
+    communication: .paf/COMMS.md
+
+  - id: aggregation
+    name: "Performance Summary"
+    description: "Aggregated performance recommendations"
+    mode: sequential
+    depends_on: [performance-analysis, infrastructure]
+    agents:
+      - george   # 📋 Aggregator
+    communication: .paf/COMMS.md
+
+# Output configuration
+output:
+  format: structured
+  sections:
+    - executive_summary
+    - performance_metrics
+    - bottlenecks
+    - optimization_recommendations
+    - cost_impact
+    - action_items
+
+# Aggregator (consistency with other workflows)
+aggregator: george

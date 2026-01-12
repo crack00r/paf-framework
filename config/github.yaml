@@ -1,0 +1,267 @@
+# PAF GitHub Integration Configuration
+# Main configuration for GitHub integration
+last_updated: "2026-01-12"
+
+github:
+  # Enable/Disable GitHub Integration
+  enabled: true
+
+  # Automatically create issues for findings?
+  auto_create_issues: true
+
+  # Automatically add to project board?
+  auto_add_to_project: true
+
+  # Default project board for general issues
+  default_project: "📋 PAF Sprint Board"
+
+# =============================================================================
+# ISSUE PREFIXES PER AGENT
+# =============================================================================
+# Each agent has a unique prefix for their issues
+# Format: [PREFIX-001] Issue Title
+
+prefixes:
+  # Perspective Agents
+  alex: "SEC"
+  emma: "PERF"
+  sam: "UX"
+  david: "SCALE"
+  max: "MAINT"
+  luna: "A11Y"
+  tom: "COST"
+  nina: "TRIAGE"
+  leo: "DOC"
+  ava: "IDEA"
+  
+  # Discovery Agents
+  maya: "FEAT"
+  iris: "RES"
+  ben: "DATA"
+  
+  # Planning Agents
+  sophia: "ADR"
+  michael: "TASK"
+  kai: "PLAN"
+  
+  # Implementation Agents
+  sarah: "IMPL"
+  anna: "API"
+  chris: "UI"
+  dan: "DB"
+  tina: "TEST"
+  
+  # Review Agents
+  rachel: "REV"
+  stan: "STD"
+  scanner: "SCAN"
+  perf: "BENCH"
+  
+  # Deployment Agents
+  tony: "DEPLOY"
+  rel: "REL"
+  miggy: "MIG"
+  
+  # Operations Agents
+  inci: "INC"
+  monitor: "MON"
+  feedback: "FB"
+  
+  # Retrospective Agents
+  george: "AGG"
+  otto: "OPT"
+  docu: "DOCU"
+  
+  # Utility Agents
+  gideon: "SETUP"
+  bug-fixer: "FIX"
+  validator: "VAL"
+
+# =============================================================================
+# AGENT TO BOARD MAPPING
+# =============================================================================
+# Which agent uses which board as their primary board?
+
+agent_boards:
+  # Security Board
+  security:
+    - alex
+    - scanner
+    - nina
+  
+  # Product Backlog
+  backlog:
+    - maya
+    - iris
+    - ava
+    - kai
+  
+  # Architecture Board
+  architecture:
+    - sophia
+    - david
+    - michael
+  
+  # Bug Tracker
+  bugs:
+    - tina
+    - inci
+    - feedback
+    - bug-fixer
+    - validator
+
+  # Tech Debt
+  tech_debt:
+    - max
+    - stan
+    - otto
+  
+  # Release Pipeline
+  release:
+    - tony
+    - rel
+  
+  # Sprint Board (default for all others)
+  sprint:
+    - emma
+    - sam
+    - luna
+    - tom
+    - leo
+    - nina
+    - ben
+    - michael
+    - kai
+    - sarah
+    - anna
+    - chris
+    - dan
+    - rachel
+    - perf
+    - miggy
+    - monitor
+    - george
+    - otto
+    - docu
+
+# =============================================================================
+# SEVERITY TO PRIORITY MAPPING
+# =============================================================================
+severity_mapping:
+  critical: "P0"
+  high: "P1"
+  medium: "P2"
+  low: "P3"
+
+# =============================================================================
+# AGENT CAPABILITIES
+# =============================================================================
+# What can each agent type do in GitHub?
+
+capabilities:
+  # Agents that create issues
+  issue_creators:
+    - alex
+    - emma
+    - sam
+    - david
+    - max
+    - luna
+    - tom
+    - leo
+    - ava
+    - maya
+    - iris
+    - ben
+    - sophia
+    - michael
+    - tina
+    - rachel
+    - stan
+    - scanner
+    - perf
+    - inci
+    - monitor
+    - feedback
+    - george
+    - otto
+    - docu
+  
+  # Agents that do triage (set priorities, move items)
+  triagers:
+    - nina
+    - kai
+    - george
+  
+  # Agents that create PRs
+  pr_creators:
+    - sarah
+    - anna
+    - chris
+    - dan
+    - tony
+    - docu
+    - bug-fixer
+  
+  # Agents that review PRs
+  pr_reviewers:
+    - rachel
+    - stan
+    - scanner
+    - perf
+  
+  # Agents that create releases
+  release_managers:
+    - rel
+    - tony
+
+# =============================================================================
+# GITHUB ACTIONS CONFIGURATION
+# =============================================================================
+actions:
+  # Auto-Triage: Automatically add new issues to boards
+  auto_triage:
+    enabled: true
+
+  # Auto-Label: Label PRs based on changed files
+  auto_label:
+    enabled: true
+    rules:
+      - pattern: "src/security/**"
+        label: "security"
+      - pattern: "src/api/**"
+        label: "api"
+      - pattern: "docs/**"
+        label: "documentation"
+      - pattern: "tests/**"
+        label: "testing"
+  
+  # Stale Issues: Mark inactive issues
+  stale_issues:
+    enabled: true
+    days_before_stale: 14
+    days_before_close: 7
+    exempt_labels:
+      - "P0"
+      - "P1"
+      - "blocked"
+      - "pinned"
+  
+  # Sprint Metrics: Calculate metrics on milestone close
+  sprint_metrics:
+    enabled: true
+  
+  # Release Notes: Auto-generate from PRs
+  release_notes:
+    enabled: true
+    categories:
+      - title: "🔒 Security"
+        labels: ["security"]
+      - title: "✨ Features"
+        labels: ["feature"]
+      - title: "🐛 Bug Fixes"
+        labels: ["bug"]
+      - title: "📚 Documentation"
+        labels: ["documentation"]
+      - title: "🔧 Maintenance"
+        labels: ["tech-debt", "refactoring"]

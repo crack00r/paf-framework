@@ -1,0 +1,30 @@
+{
+  "name": "paf-nested-subagent-mcp",
+  "version": "1.12.0",
+  "description": "MCP server for PAF Framework - enables unlimited agent hierarchy by spawning fresh Claude processes",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.mjs",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "execa": "^9.5.2",
+    "tsdown": "^0.19.0-beta.2",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

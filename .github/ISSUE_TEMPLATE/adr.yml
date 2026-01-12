@@ -1,0 +1,68 @@
+name: "🏗️ Architecture Decision Record"
+description: "Document an architecture decision"
+title: "[ADR-XXX] "
+labels: ["adr", "architecture"]
+body:
+  - type: dropdown
+    id: status
+    attributes:
+      label: "Status"
+      options:
+        - "Proposed"
+        - "Accepted"
+        - "Deprecated"
+        - "Superseded"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context"
+      description: "What is the issue that we're seeing that motivates this decision?"
+      placeholder: "We need to decide on a database technology for..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision
+    attributes:
+      label: "Decision"
+      description: "What is the change that we're proposing and/or doing?"
+      placeholder: "We will use PostgreSQL because..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "What other options were evaluated?"
+      placeholder: |
+        1. **MongoDB** - Rejected because...
+        2. **MySQL** - Rejected because...
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: "Consequences"
+      description: "What are the positive and negative outcomes?"
+      placeholder: |
+        **Positive:**
+        - Strong ACID compliance
+        - Rich ecosystem
+        
+        **Negative:**
+        - Learning curve
+        - Operational complexity
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "References"
+      description: "Related ADRs, documentation, or external resources"
+      placeholder: |
+        - Related: ADR-001
+        - Docs: https://...

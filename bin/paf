@@ -1,0 +1,579 @@
+#!/usr/bin/env bash
+# PAF - Project Agent Framework CLI
+# Enterprise Edition - 38 Agents
+
+PAF_HOME="$HOME/.paf"
+
+# Read version from VERSION file (Single Source of Truth)
+if [ -f "$PAF_HOME/VERSION" ]; then
+    PAF_VERSION=$(cat "$PAF_HOME/VERSION" | tr -d '\n\r ')
+elif [ -f "$(dirname "$0")/../VERSION" ]; then
+    PAF_VERSION=$(cat "$(dirname "$0")/../VERSION" | tr -d '\n\r ')
+else
+    PAF_VERSION="unknown"
+fi
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Print functions
+print_success() { echo -e "${GREEN}✅ $1${NC}"; }
+print_error() { echo -e "${RED}❌ $1${NC}"; }
+print_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
+print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+print_header() { echo -e "${PURPLE}🏭 $1${NC}"; }
+
+# Cross-platform sed in-place edit
+sed_inplace() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "$@"
+    else
+        sed -i "$@"
+    fi
+}
+
+# Show banner
+show_banner() {
+    echo -e "${CYAN}"
+    echo "╔═══════════════════════════════════════════════════════════════╗"
+    echo "║       🏭 PAF - Project Agent Framework v${PAF_VERSION}             ║"
+    echo "║           Enterprise Multi-Agent Development                  ║"
+    echo "║                    38 Specialized Agents                      ║"
+    echo "╚═══════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+# Show help
+show_help() {
+    show_banner
+    cat << EOF
+Usage: paf <command> [options]
+
+${PURPLE}COMMANDS:${NC}
+
+  ${GREEN}init${NC}                    Initialize PAF in current project
+  ${GREEN}status${NC}                  Show current project status
+
+  ${GREEN}workflow${NC} <type>         Run a workflow
+    • perspective         10-agent perspective review
+    • full-feature        Complete feature lifecycle
+    • bugfix              Quick bug fix flow
+    • hotfix              Emergency fix (skip gates)
+    • security            Security audit
+    • retro               Sprint retrospective
+
+  ${GREEN}agent${NC} <name> [task]     Run a specific agent
+  ${GREEN}agents${NC}                  List all available agents
+
+  ${GREEN}prompt${NC} <workflow>       Show Claude Code prompt for workflow
+
+${PURPLE}EXAMPLES:${NC}
+
+  paf init                          # Initialize in current project
+  paf workflow perspective          # Start 10-agent review
+  paf agent george retro            # Run George for retrospective
+  paf prompt full-feature           # Get Claude Code prompt
+
+${PURPLE}AGENT NAMES (38 total):${NC}
+
+  Orchestration: cto
+  Discovery:     ben, maya, iris
+  Planning:      sophia, michael, kai
+  Perspectives:  alex, emma, sam, david, max, luna, tom, nina, leo, ava
+  Implement:     sarah, anna, chris, dan, tina
+  Review:        rachel, scanner, stan, perf
+  Deploy:        tony, miggy, rel
+  Operations:    inci, monitor, feedback
+  Retro:         george, otto, docu
+  Utility:       bug-fixer, gideon, validator
+
+${PURPLE}MORE INFO:${NC}
+
+  Documentation: ~/.paf/README.md
+  Agent Defs:    ~/.paf/agents/
+  Workflows:     ~/.paf/workflows/
+
+EOF
+}
+
+# List all agents
+list_agents() {
+    show_banner
+    echo -e "${PURPLE}Available Agents (38):${NC}\n"
+
+    echo -e "${CYAN}🎪 ORCHESTRATION (1)${NC}"
+    echo "   cto      - Chief Technology Officer (Orchestrator)"
+    echo ""
+
+    echo -e "${CYAN}🔬 DISCOVERY (3)${NC}"
+    echo "   ben      - Data Analyst"
+    echo "   maya     - Product Research Lead"
+    echo "   iris     - Innovation Scout"
+    echo ""
+
+    echo -e "${CYAN}📐 PLANNING (3)${NC}"
+    echo "   sophia   - Solutions Architect (Team Lead)"
+    echo "   michael  - Technical Lead"
+    echo "   kai      - Project Manager"
+    echo ""
+
+    echo -e "${CYAN}👥 PERSPECTIVES (10)${NC}"
+    echo "   alex     - 🔒 Security Analyst"
+    echo "   emma     - ⚡ Performance Engineer"
+    echo "   sam      - 🎨 UX Designer"
+    echo "   david    - 🔀 Solutions Architect (Scalability)"
+    echo "   max      - 🔧 Maintainability Expert"
+    echo "   luna     - ♿ Accessibility Expert"
+    echo "   tom      - 💰 FinOps Engineer"
+    echo "   nina     - 🎯 Triage Lead"
+    echo "   leo      - 📚 Documentation Lead"
+    echo "   ava      - 💡 Innovation Lead"
+    echo ""
+
+    echo -e "${CYAN}🛠️  IMPLEMENTATION (5)${NC}"
+    echo "   sarah    - Full-Stack Developer (Team Lead)"
+    echo "   anna     - Backend Developer (API)"
+    echo "   chris    - Frontend Developer"
+    echo "   dan      - Database Developer"
+    echo "   tina     - QA Engineer"
+    echo ""
+
+    echo -e "${CYAN}👀 REVIEW (4)${NC}"
+    echo "   rachel   - Code Review Lead"
+    echo "   scanner  - Static Analysis"
+    echo "   stan     - Standards Enforcer"
+    echo "   perf     - Performance Analyst"
+    echo ""
+
+    echo -e "${CYAN}🚀 DEPLOYMENT (3)${NC}"
+    echo "   tony     - DevOps Lead"
+    echo "   miggy    - Migration Specialist"
+    echo "   rel      - Release Manager"
+    echo ""
+
+    echo -e "${CYAN}📈 OPERATIONS (3)${NC}"
+    echo "   inci     - Incident Commander"
+    echo "   monitor  - Observability Engineer"
+    echo "   feedback - User Feedback Analyst"
+    echo ""
+
+    echo -e "${CYAN}📊 RETROSPECTIVE (3)${NC}"
+    echo "   george   - Aggregator (Team Lead)"
+    echo "   otto     - Process Optimizer"
+    echo "   docu     - Technical Writer"
+    echo ""
+
+    echo -e "${CYAN}🔧 UTILITY (3)${NC}"
+    echo "   bug-fixer  - 🐛 Automated Bug Fixer"
+    echo "   gideon     - 🛠️ GitHub Setup Agent"
+    echo "   validator  - ✅ Build Validator"
+}
+
+# Initialize PAF in current project
+init_project() {
+    local project_dir=$(pwd)
+    local project_name=$(basename "$project_dir")
+
+    show_banner
+    print_info "Initializing PAF for: ${CYAN}$project_name${NC}"
+
+    # Create .paf directory
+    mkdir -p .paf/reviews
+
+    # Copy templates
+    cp "$PAF_HOME/templates/COMMS.md" .paf/COMMS.md
+    cp "$PAF_HOME/templates/PROCESS.md" .paf/PROCESS.md
+
+    # Update project info (using cross-platform sed_inplace)
+    sed_inplace "s/\[PROJEKT_NAME\]/$project_name/g" .paf/COMMS.md
+    sed_inplace "s/\[PROJEKT_NAME\]/$project_name/g" .paf/PROCESS.md
+    sed_inplace "s/\[DATUM\]/$(date +%Y-%m-%d)/g" .paf/PROCESS.md
+    sed_inplace "s/\[TIMESTAMP\]/$(date '+%Y-%m-%d %H:%M')/g" .paf/COMMS.md
+
+    # Create project config
+    cat > .paf/project.yaml << EOF
+# PAF Project Configuration
+# Generated: $(date +%Y-%m-%d)
+
+project:
+  name: $project_name
+  created: $(date +%Y-%m-%d)
+  repository: # Add GitHub URL
+
+settings:
+  model: claude-opus-4-5-20251101
+  language: de  # de/en
+  auto_labels: true
+  parallel_review: true
+
+github:
+  project_board: # Add GitHub Project URL
+  auto_issues: true
+
+active_agents:
+  # Enable/disable agents as needed
+  orchestration: [cto]
+  discovery: [ben, maya, iris]
+  planning: [sophia, michael, kai]
+  perspectives: [alex, emma, sam, david, max, luna, tom, nina, leo, ava]
+  implementation: [sarah, anna, chris, dan, tina]
+  review: [rachel, scanner, stan, perf]
+  deployment: [tony, miggy, rel]
+  operations: [inci, monitor, feedback]
+  retrospective: [george, otto, docu]
+  utility: [bug-fixer, gideon, validator]
+EOF
+
+    print_success "PAF initialized!"
+    echo ""
+    print_info "Created files:"
+    echo "   .paf/COMMS.md      - Agent communication hub"
+    echo "   .paf/PROCESS.md    - Project status & metrics"
+    echo "   .paf/project.yaml  - Project configuration"
+    echo "   .paf/reviews/      - Saved review reports"
+    echo ""
+    print_info "Next steps:"
+    echo "   1. Edit .paf/project.yaml with your GitHub URLs"
+    echo "   2. Run: paf workflow perspective"
+    echo "   3. Or in Claude Code: /paf-cto"
+}
+
+# Show status
+show_status() {
+    if [ ! -d ".paf" ]; then
+        print_error "PAF not initialized. Run 'paf init' first."
+        exit 1
+    fi
+
+    show_banner
+    print_info "Project: ${CYAN}$(basename $(pwd))${NC}"
+    echo ""
+
+    if [ -f ".paf/PROCESS.md" ]; then
+        head -50 .paf/PROCESS.md
+    fi
+}
+
+# Show prompt for workflow
+show_prompt() {
+    local workflow=$1
+
+    show_banner
+
+    case $workflow in
+        perspective)
+            print_header "Perspective Review Prompt"
+            echo ""
+            cat << 'PROMPT'
+I want to perform a PAF Perspective Review.
+
+**Project:** [PROJECT/FEATURE]
+
+**Instructions:**
+1. First read ~/.paf/SKILL.md for framework overview
+2. Read the spec/feature to be reviewed
+3. Execute all 10 Perspective Agents sequentially:
+
+For each agent:
+- Read their definition: ~/.paf/agents/perspectives/[name].md
+- Think from their perspective
+- Write feedback to .paf/COMMS.md in section AGENT:[NAME]
+
+**Agent Order:**
+1. Alex (Security) - ~/.paf/agents/perspectives/alex.md
+2. Emma (Performance) - ~/.paf/agents/perspectives/emma.md
+3. Sam (UX) - ~/.paf/agents/perspectives/sam.md
+4. David (Scalability) - ~/.paf/agents/perspectives/david.md
+5. Max (Maintainability) - ~/.paf/agents/perspectives/max.md
+6. Luna (Accessibility) - ~/.paf/agents/perspectives/luna.md
+7. Tom (Cost) - ~/.paf/agents/perspectives/tom.md
+8. Nina (Triage) - ~/.paf/agents/perspectives/nina.md
+9. Leo (Documentation) - ~/.paf/agents/perspectives/leo.md
+10. Ava (Innovation) - ~/.paf/agents/perspectives/ava.md
+
+**At the End:**
+George aggregates all findings in his section:
+- Critical Issues (Blockers)
+- Important Issues (Should Fix)
+- Nice-to-Haves
+- Action Items
+
+Start now with Alex.
+PROMPT
+            ;;
+
+        full-feature)
+            print_header "Full Feature Workflow Prompt"
+            echo ""
+            cat << 'PROMPT'
+I want to execute the PAF Full Feature Workflow.
+
+**Feature:** [FEATURE_NAME]
+
+**Instructions:**
+Execute all phases sequentially. After each phase, ask if I should continue.
+
+**Phase 1: Discovery**
+- Ben: Data Analysis
+- Maya: Product Research & Best Practices
+- Iris: UX Research & Alternatives
+
+**Phase 2: Planning**
+- Sophia: Architecture Design
+- Michael: Technical Breakdown
+- Kai: Scope & Prioritization
+
+**Phase 3: Perspective Review**
+- All 10 Perspective Agents
+
+**Phase 4: Implementation**
+- Sarah: Main Implementation (Team Lead)
+- Anna/Chris/Dan/Tina as needed
+
+**Phase 5: Review**
+- Rachel: Code Review Lead
+- Scanner/Stan/Perf: Quality Checks
+
+**Phase 6: Deployment**
+- Tony: Deploy
+- Rel: Release Notes
+
+Read ~/.paf/workflows/full-feature.yaml for details.
+Document everything in .paf/COMMS.md.
+PROMPT
+            ;;
+
+        bugfix)
+            print_header "Bugfix Workflow Prompt"
+            echo ""
+            cat << 'PROMPT'
+I want to execute the PAF Bugfix Workflow for a bug.
+
+**Bug:** [BUG_DESCRIPTION]
+
+**Phase 1: Triage (Nina)**
+- Reproduce bug
+- Identify root cause
+- Set severity (P0-P3)
+
+**Phase 2: Fix (Sarah)**
+- Fix bug
+- Write test covering the bug
+
+**Phase 3: Review (Rachel)**
+- Code Review
+- Regression Check
+
+**Phase 4: Deploy (Tony)**
+- Staging -> Production
+
+Read ~/.paf/workflows/bugfix.yaml for details.
+Document in .paf/COMMS.md.
+PROMPT
+            ;;
+
+        hotfix)
+            print_header "Hotfix Workflow Prompt (EMERGENCY)"
+            echo ""
+            cat << 'PROMPT'
+HOTFIX WORKFLOW - EMERGENCIES ONLY
+
+**Problem:** [CRITICAL PROBLEM]
+
+**Phase 1: Incident (Inci)**
+- Declare P0 Incident
+- Notify team
+
+**Phase 2: Fix (Sarah)**
+- FASTEST Fix (Workaround OK)
+
+**Phase 3: Quick Review (Rachel - max 15min)**
+- No Breaking Change?
+- No Data Loss?
+
+**Phase 4: Deploy (Tony)**
+- Direct Production (skip Staging if needed)
+
+**Phase 5: Verify (Monitor)**
+- Verify fix
+
+**Phase 6: Post-Mortem (George)**
+- What happened?
+- How to prevent?
+
+Read ~/.paf/workflows/hotfix.yaml for details.
+PROMPT
+            ;;
+
+        security)
+            print_header "Security Audit Workflow Prompt"
+            echo ""
+            cat << 'PROMPT'
+I want to execute a PAF Security Audit.
+
+**Scope:** [FEATURE/SYSTEM]
+
+**Phase 1: Scope (Alex + Kai)**
+- What is being audited?
+- Which assets?
+
+**Phase 2: Automated Scan (Scanner)**
+- npm audit
+- SAST Scan
+- Secret Detection
+
+**Phase 3: Manual Review (Alex)**
+- Authentication
+- Authorization
+- Input Validation
+- GDPR Compliance
+
+**Phase 4: Penetration Mindset (Alex)**
+- "How would I hack this?"
+
+**Phase 5: Report**
+- Findings with Severity
+- Recommendations
+
+**Phase 6: Fix (Sarah)**
+- Fix Critical/High
+
+Read ~/.paf/workflows/security-audit.yaml for details.
+PROMPT
+            ;;
+
+        retro)
+            print_header "Retrospective Workflow Prompt"
+            echo ""
+            cat << 'PROMPT'
+I want to execute a PAF Sprint Retrospective.
+
+**Sprint:** [SPRINT_NUMBER]
+
+**Phase 1: Metrics (George + Ben)**
+- Issues closed
+- PRs merged
+- Deployments
+- Bugs
+
+**Phase 2: Process (Otto)**
+- Bottlenecks
+- Automation Opportunities
+
+**Phase 3: Documentation (Docu)**
+- Outdated Docs
+- Missing Docs
+
+**Phase 4: Feedback (Feedback)**
+- User feedback from this period
+
+**Phase 5: Retro (George)**
+- What went well?
+- What could be better?
+- Ideas
+- Action Items
+
+Read ~/.paf/workflows/retrospective.yaml for details.
+PROMPT
+            ;;
+
+        *)
+            print_error "Unknown workflow: $workflow"
+            echo "Available: perspective, full-feature, bugfix, hotfix, security, retro"
+            ;;
+    esac
+}
+
+# Run workflow
+run_workflow() {
+    local workflow=$1
+
+    if [ ! -d ".paf" ]; then
+        print_error "PAF not initialized. Run 'paf init' first."
+        exit 1
+    fi
+
+    show_prompt $workflow
+    echo ""
+    print_info "Copy the prompt above into Claude Code to start the workflow."
+}
+
+# Run specific agent
+run_agent() {
+    local agent_name=$1
+    local task=$2
+
+    if [ ! -d ".paf" ]; then
+        print_error "PAF not initialized. Run 'paf init' first."
+        exit 1
+    fi
+
+    show_banner
+    print_header "Agent: ${CYAN}$agent_name${NC}"
+    print_info "Task: ${task:-default}"
+    echo ""
+
+    # Find agent file
+    local agent_file=$(find "$PAF_HOME/agents" -name "${agent_name}.md" 2>/dev/null | head -1)
+
+    if [ -z "$agent_file" ]; then
+        print_error "Agent '$agent_name' not found"
+        echo "Run 'paf agents' to see available agents"
+        exit 1
+    fi
+
+    print_info "Agent definition: $agent_file"
+    echo ""
+    print_header "Claude Code Prompt:"
+    echo ""
+
+    cat << EOF
+You are ${agent_name} from the PAF Framework.
+
+1. Read your agent definition: ${agent_file}
+2. Read the project status: .paf/COMMS.md and .paf/PROCESS.md
+3. Execute your task: ${task:-Standard activities}
+4. Write your results to .paf/COMMS.md in your section (AGENT:${agent_name^^})
+
+Start now.
+EOF
+}
+
+# Main
+case $1 in
+    init)
+        init_project
+        ;;
+    status)
+        show_status
+        ;;
+    workflow)
+        run_workflow $2
+        ;;
+    agent)
+        run_agent $2 "$3"
+        ;;
+    agents|list)
+        list_agents
+        ;;
+    prompt)
+        show_prompt $2
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    "")
+        show_help
+        ;;
+    *)
+        print_error "Unknown command: $1"
+        echo "Run 'paf help' for usage"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,285 @@
+# ============================================================================
+# PAF FRAMEWORK - Build Presets Configuration v4.4
+# ============================================================================
+# Controls workflow intensity: how many agents run, which stages execute.
+# Determines speed vs. thoroughness trade-off.
+# ============================================================================
+
+version: "2.1"
+meta:
+  description: "PAF Build Presets - Workflow Intensity Configuration"
+  framework: "PAF"
+  last_updated: "2026-01-12"
+  total_builds: 3
+
+# ============================================================================
+# AGENT REFERENCE - PAF Enterprise Roles
+# ============================================================================
+# PERSPECTIVE AGENTS (10 Cross-Cutting Reviewers):
+# alex  🔒 Security Analyst - OWASP, Auth, Vulnerabilities
+# emma  ⚡ Performance Engineer - Latency, N+1, Caching
+# sam   🎨 UX Designer - Usability, User Flows, States
+# david 🔀 Solutions Architect - Scalability, Microservices
+# max   🔧 Senior Developer - Maintainability, SOLID, Tech Debt
+# luna  ♿ Accessibility Expert - WCAG 2.1, Screen Reader
+# tom   💰 FinOps Engineer - Cloud Costs, Optimization
+# nina  🎯 Technical PM - Triage, Prioritization, Risk
+# leo   📚 Technical Writer - Documentation, API Docs
+# ava   💡 Innovation Lead - Emerging Tech, Alternatives
+#
+# SDLC TEAMS:
+# Discovery: ben, maya, iris
+# Planning: sophia, michael, kai
+# Implementation: anna, chris, dan, sarah, tina
+# Review: rachel, stan, scanner, perf
+# Deployment: tony, rel, miggy
+# Operations: inci, monitor, feedback
+# Retrospective: george, otto, docu
+# Utility: bug-fixer, validator
+# ============================================================================
+
+builds:
+  # --------------------------------------------------------------------------
+  # QUICK: Fastest Analysis (2-3 Minutes)
+  # --------------------------------------------------------------------------
+  quick:
+    description: "Rapid analysis with essential perspectives only"
+    category: speed
+    target_time: "2-3 minutes"
+    target_agents: "5-8 agents"
+    
+    agents:
+      core_required: [cto]
+      always_included:
+        # Core Perspective Agents for Quick Review
+        - alex      # 🔒 Security - always critical
+        - max       # 🔧 Maintainability - Code Quality
+        - nina      # 🎯 Triage - Prioritization
+        - emma      # ⚡ Performance - Quick perf check
+      conditionally_included:
+        - agent: sam
+          condition: "UI/UX/frontend mentioned"
+        - agent: luna
+          condition: "accessibility/a11y/wcag mentioned"
+        - agent: david
+          condition: "architecture/scalability mentioned"
+      excluded:
+        - tom       # 💰 Cost - skip for speed
+        - leo       # 📚 Documentation - skip for speed
+        - ava       # 💡 Innovation - skip for speed
+        - george    # Inline aggregation instead
+        # SDLC Teams excluded in quick
+        - ben
+        - maya
+        - iris
+        - sophia
+        - michael
+        - kai
+
+    stage_modes:
+      discovery: skip
+      perspectives: minimal
+      aggregation: compressed
+      handoff: skip
+
+    features:
+      parallel_execution: true
+      detailed_analysis: false
+      comprehensive_report: false
+
+    output:
+      format: compact_summary
+      max_length: 500_words
+
+  # --------------------------------------------------------------------------
+  # STANDARD: Balanced Analysis (8-12 Minutes)
+  # --------------------------------------------------------------------------
+  standard:
+    description: "Balanced analysis with all perspectives"
+    category: balanced
+    target_time: "8-12 minutes"
+    target_agents: "15-20 agents"
+    default: true
+
+    agents:
+      core_required: [cto]
+      always_included:
+        # All 10 Perspective Agents
+        - alex      # 🔒 Security
+        - emma      # ⚡ Performance
+        - sam       # 🎨 UX
+        - david     # 🔀 Scalability
+        - max       # 🔧 Maintainability
+        - luna      # ♿ Accessibility
+        - tom       # 💰 Cost
+        - nina      # 🎯 Triage
+        - leo       # 📚 Documentation
+        - ava       # 💡 Innovation
+        # Review Team
+        - rachel    # Review Lead
+        - stan      # Standards
+        # Aggregation
+        - george    # 📋 Aggregator
+      conditionally_included:
+        - agent: scanner
+          condition: "security audit/deep security"
+        - agent: perf
+          condition: "performance deep dive"
+        - agent: sophia
+          condition: "architecture review"
+      excluded: []
+
+    stage_modes:
+      discovery: standard
+      perspectives: full
+      aggregation: standard
+      handoff: standard
+
+    features:
+      parallel_execution: true
+      detailed_analysis: true
+      comprehensive_report: true
+      comms_md_updates: full
+
+    output:
+      format: structured_report
+      max_length: 2000_words
+
+  # --------------------------------------------------------------------------
+  # COMPREHENSIVE: Complete Analysis (20-30 Minutes)
+  # --------------------------------------------------------------------------
+  comprehensive:
+    description: "Complete analysis with all 38 agents"
+    category: thorough
+    target_time: "20-30 minutes"
+    target_agents: "30-38 agents"
+    
+    agents:
+      core_required: [cto]
+      always_included:
+        # All 10 Perspective Agents
+        - alex      # 🔒 Security
+        - emma      # ⚡ Performance
+        - sam       # 🎨 UX
+        - david     # 🔀 Scalability
+        - max       # 🔧 Maintainability
+        - luna      # ♿ Accessibility
+        - tom       # 💰 Cost
+        - nina      # 🎯 Triage
+        - leo       # 📚 Documentation
+        - ava       # 💡 Innovation
+        # Discovery Team
+        - ben       # Data Analyst
+        - maya      # Product Manager
+        - iris      # Innovation Scout
+        # Planning Team
+        - sophia    # Architect
+        - michael   # Tech Lead
+        - kai       # Project Manager
+        # Review Team
+        - rachel    # Review Lead
+        - stan      # Standards
+        - scanner   # Security Scanner
+        - perf      # Performance
+        # Retrospective Team
+        - george    # 📋 Aggregator
+        - otto      # Optimizer
+        - docu      # Documentation
+      conditionally_included:
+        # Implementation Team (on demand - CTO spawns ALL directly, sarah coordinates)
+        - agent: sarah
+          condition: "code implementation needed"
+        - agent: chris
+          condition: "frontend/UI implementation needed"
+        - agent: dan
+          condition: "backend/database implementation needed"
+        - agent: anna
+          condition: "API implementation needed"
+        - agent: tina
+          condition: "test implementation needed"
+        # Deployment Team (on demand)
+        - agent: tony
+          condition: "deployment/devops context"
+        - agent: rel
+          condition: "release planning"
+        - agent: miggy
+          condition: "migration/upgrade tasks"
+        # Operations Team (on demand)
+        - agent: inci
+          condition: "incident/production issue"
+        - agent: monitor
+          condition: "monitoring setup"
+        - agent: feedback
+          condition: "user feedback analysis"
+        # Utility Agents (on demand)
+        - agent: validator
+          condition: "build validation needed"
+        - agent: bug-fixer
+          condition: "bug fixing needed"
+      excluded: []
+
+    stage_modes:
+      discovery: full
+      planning: full
+      perspectives: full
+      review: full
+      aggregation: full
+      handoff: full
+
+    features:
+      parallel_execution: true
+      detailed_analysis: true
+      comprehensive_report: true
+      iteration_rounds: 2
+      specialist_consultation: true
+      comms_md_updates: full
+      hierarchical_spawning: true
+
+    output:
+      format: enterprise_report
+      max_length: 5000_words
+
+# ============================================================================
+# BUILD SELECTION ALGORITHM
+# ============================================================================
+
+selection:
+  priority_order:
+    1: "command_flags"      # --build=quick (highest priority)
+    2: "config_overrides"   # preferences.yaml
+    3: "default_fallback"   # standard
+
+  default_build: standard
+
+# ============================================================================
+# QUALITY GATES
+# ============================================================================
+
+quality_gates:
+  quick:
+    required:
+      - "All spawned agents complete"
+    
+  standard:
+    required:
+      - "All spawned agents complete"
+      - "All perspectives reviewed"
+      - "Critical issues documented"
+      - "Recommendations provided"
+      
+  comprehensive:
+    required:
+      - "All spawned agents complete"
+      - "All SDLC phases executed"
+      - "All issues documented"
+      - "Risk matrix complete"
+      - "Action plan included"
+      - "George aggregation complete"
+
+# ============================================================================
+# EXCLUDED AGENTS (Intentional)
+# ============================================================================
+# gideon - GitHub Setup Agent, intentionally excluded from builds.
+#          Runs ONCE per repository during initial setup (.paf/GITHUB_SYSTEM.md).
+#          Not part of regular review workflows.
+# ============================================================================

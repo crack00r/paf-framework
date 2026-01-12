@@ -1,0 +1,703 @@
+#!/bin/bash
+#
+# PAF Orchestrator v3.0
+# Automatic Agent Orchestration for PAF Framework
+#
+# Usage:
+#   paf-orchestrator run <workflow> [options]
+#   paf-orchestrator status
+#   paf-orchestrator next
+#   paf-orchestrator complete <agent>
+#
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# Paths
+PAF_HOME="${PAF_HOME:-$HOME/.paf}"
+PAF_STATE_DIR="$PAF_HOME/state"
+PAF_MEMORY_DIR="$PAF_HOME/memory"
+PAF_WORKFLOWS_DIR="$PAF_HOME/workflows"
+PAF_AGENTS_DIR="$PAF_HOME/agents"
+
+# Current project
+PROJECT_DIR="${PWD}"
+PROJECT_PAF_DIR="$PROJECT_DIR/.paf"
+PROJECT_HASH=$(echo "$PROJECT_DIR" | md5sum | cut -c1-8 2>/dev/null || echo "$PROJECT_DIR" | md5 | cut -c1-8)
+STATE_FILE="$PAF_STATE_DIR/$PROJECT_HASH/workflow.json"
+COMMS_FILE="$PROJECT_PAF_DIR/COMMS.md"
+
+# ============================================================
+# Utility Functions
+# ============================================================
+
+log_info() { echo -e "${BLUE}[PAF]${NC} $1"; }
+log_success() { echo -e "${GREEN}[PAF]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[PAF]${NC} $1"; }
+log_error() { echo -e "${RED}[PAF]${NC} $1"; }
+
+# Cross-platform sed in-place edit
+sed_inplace() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "$@"
+    else
+        sed -i "$@"
+    fi
+}
+
+# Cross-platform ISO date
+iso_date() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        date +%Y-%m-%dT%H:%M:%S%z
+    else
+        date -Iseconds
+    fi
+}
+
+ensure_state_dir() {
+    mkdir -p "$PAF_STATE_DIR/$PROJECT_HASH"
+}
+
+# ============================================================
+# YAML Parser (simple grep-based)
+# ============================================================
+
+parse_workflow_name() {
+    grep "^name:" "$1" | head -1 | sed 's/name: *//' | tr -d '"'
+}
+
+parse_workflow_phases() {
+    # Extracts Phase IDs
+    grep "^\s*- id:" "$1" | sed 's/.*id: *//' | tr -d '"'
+}
+
+parse_phase_agents() {
+    local workflow="$1"
+    local phase_id="$2"
+
+    # Find the phase and extract agents
+    awk -v phase="$phase_id" '
+        /- id:/ { current_phase = $3; gsub(/"/, "", current_phase) }
+        current_phase == phase && /- [a-z]+/ && !/- id:/ && !/- name:/ {
+            agent = $2
+            gsub(/#.*/, "", agent)  # Remove comments
+            gsub(/^- /, "", agent)
+            if (agent ~ /^[a-z]+$/) print agent
+        }
+    ' "$workflow"
+}
+
+parse_phase_mode() {
+    local workflow="$1"
+    local phase_id="$2"
+
+    awk -v phase="$phase_id" '
+        /- id:/ { current_phase = $3; gsub(/"/, "", current_phase) }
+        current_phase == phase && /mode:/ {
+            mode = $2
+            gsub(/"/, "", mode)
+            print mode
+        }
+    ' "$workflow" | head -1
+}
+
+parse_phase_depends() {
+    local workflow="$1"
+    local phase_id="$2"
+
+    awk -v phase="$phase_id" '
+        /- id:/ { current_phase = $3; gsub(/"/, "", current_phase) }
+        current_phase == phase && /depends_on:/ {
+            gsub(/.*depends_on: *\[/, "")
+            gsub(/\].*/, "")
+            gsub(/, */, "\n")
+            print
+        }
+    ' "$workflow"
+}
+
+parse_requires_approval() {
+    local workflow="$1"
+    local phase_id="$2"
+
+    awk -v phase="$phase_id" '
+        /- id:/ { current_phase = $3; gsub(/"/, "", current_phase) }
+        current_phase == phase && /requires_approval: *true/ { print "true" }
+    ' "$workflow" | head -1
+}
+
+# ============================================================
+# State Management
+# ============================================================
+
+init_state() {
+    local workflow_name="$1"
+    local workflow_file="$PAF_WORKFLOWS_DIR/${workflow_name}.yaml"
+
+    if [[ ! -f "$workflow_file" ]]; then
+        log_error "Workflow not found: $workflow_name"
+        exit 1
+    fi
+
+    ensure_state_dir
+
+    # Create State JSON
+    cat > "$STATE_FILE" << EOF
+{
+    "workflow": "$workflow_name",
+    "workflow_file": "$workflow_file",
+    "project_dir": "$PROJECT_DIR",
+    "started_at": "$(iso_date)",
+    "status": "running",
+    "current_phase": "",
+    "current_agents": [],
+    "completed_agents": [],
+    "phase_status": {},
+    "agent_status": {},
+    "history": []
+}
+EOF
+
+    log_success "State initialized for workflow: $workflow_name"
+}
+
+read_state() {
+    if [[ -f "$STATE_FILE" ]]; then
+        cat "$STATE_FILE"
+    else
+        echo "{}"
+    fi
+}
+
+update_state_field() {
+    local field="$1"
+    local value="$2"
+
+    if [[ -f "$STATE_FILE" ]]; then
+        # Simple sed-based update (for simple fields)
+        if [[ "$value" == "true" || "$value" == "false" || "$value" =~ ^[0-9]+$ ]]; then
+            sed -i.bak "s/\"$field\": *[^,}]*/\"$field\": $value/" "$STATE_FILE"
+        else
+            sed -i.bak "s/\"$field\": *\"[^\"]*\"/\"$field\": \"$value\"/" "$STATE_FILE"
+        fi
+        rm -f "$STATE_FILE.bak"
+    fi
+}
+
+get_state_field() {
+    local field="$1"
+    grep "\"$field\":" "$STATE_FILE" 2>/dev/null | head -1 | sed 's/.*: *"//' | sed 's/".*//' | tr -d ','
+}
+
+# ============================================================
+# Agent Activation
+# ============================================================
+
+get_agent_definition() {
+    local agent="$1"
+    local agent_file=""
+
+    # Search in all agent directories
+    for dir in "$PAF_AGENTS_DIR"/*; do
+        if [[ -f "$dir/$agent.md" ]]; then
+            agent_file="$dir/$agent.md"
+            break
+        fi
+    done
+
+    if [[ -f "$agent_file" ]]; then
+        cat "$agent_file"
+    else
+        echo "Agent definition not found: $agent"
+    fi
+}
+
+get_agent_memory() {
+    local agent="$1"
+    local memory_file="$PAF_MEMORY_DIR/$agent.md"
+
+    if [[ -f "$memory_file" ]]; then
+        cat "$memory_file"
+    fi
+}
+
+get_agent_activation_prompt() {
+    local agent="$1"
+    local agent_file=""
+
+    for dir in "$PAF_AGENTS_DIR"/*; do
+        if [[ -f "$dir/$agent.md" ]]; then
+            agent_file="$dir/$agent.md"
+            break
+        fi
+    done
+
+    if [[ -f "$agent_file" ]]; then
+        # Extract Activation section
+        awk '/^## Activation/,/^## [^A]/' "$agent_file" | grep -v "^## " | head -20
+    fi
+}
+
+generate_agent_prompt() {
+    local agent="$1"
+    local task="$2"
+    local workflow="$3"
+    local phase="$4"
+
+    local activation=$(get_agent_activation_prompt "$agent")
+    local memory=$(get_agent_memory "$agent")
+    local agent_upper=$(echo "$agent" | tr '[:lower:]' '[:upper:]')
+
+    cat << EOF
+$activation
+
+---
+
+## Workflow Context
+- **Workflow:** $workflow
+- **Phase:** $phase
+- **Project:** $PROJECT_DIR
+
+## Your Memory (from previous sessions):
+$memory
+
+## Current Task:
+$task
+
+## Output Rules:
+1. Write your result to .paf/COMMS.md section AGENT:$agent_upper
+2. Set Status to ✅ COMPLETED when done
+3. For questions to other agents: use @AGENT_NAME
+4. On blocker: BLOCKED: @AGENT_NAME reason
+5. At the end: HANDOFF: @NEXT_AGENT or HANDOFF: @ORCHESTRATOR
+
+## Important:
+- First read the relevant sections in COMMS.md
+- Reference previous agent outputs
+- Follow your defined output format
+EOF
+}
+
+# ============================================================
+# COMMS.md Management
+# ============================================================
+
+update_comms_status() {
+    local agent="$1"
+    local status="$2"
+    local agent_upper=$(echo "$agent" | tr '[:lower:]' '[:upper:]')
+
+    if [[ -f "$COMMS_FILE" ]]; then
+        # Update Status in Agent section
+        sed -i.bak "s/\(<!-- AGENT:$agent_upper:START -->\)/\1\n### Status: $status\n### Timestamp: $(iso_date)/" "$COMMS_FILE"
+        rm -f "$COMMS_FILE.bak"
+    fi
+}
+
+check_comms_for_handoffs() {
+    if [[ -f "$COMMS_FILE" ]]; then
+        # Find HANDOFF: @AGENT lines
+        grep -oE "HANDOFF: @[A-Z]+" "$COMMS_FILE" | tail -1 | sed 's/HANDOFF: @//' | tr '[:upper:]' '[:lower:]'
+    fi
+}
+
+check_comms_for_blockers() {
+    if [[ -f "$COMMS_FILE" ]]; then
+        # Find BLOCKED: lines
+        grep -E "BLOCKED:" "$COMMS_FILE" | tail -5
+    fi
+}
+
+check_comms_for_mentions() {
+    if [[ -f "$COMMS_FILE" ]]; then
+        # Find @AGENT mentions
+        grep -oE "@[A-Z]+" "$COMMS_FILE" | sort -u | sed 's/@//' | tr '[:upper:]' '[:lower:]'
+    fi
+}
+
+check_agent_completed() {
+    local agent="$1"
+    local agent_upper=$(echo "$agent" | tr '[:lower:]' '[:upper:]')
+
+    if [[ -f "$COMMS_FILE" ]]; then
+        # Check if agent has COMPLETED status
+        if grep -A5 "AGENT:$agent_upper:START" "$COMMS_FILE" | grep -q "COMPLETED"; then
+            echo "true"
+        else
+            echo "false"
+        fi
+    else
+        echo "false"
+    fi
+}
+
+# ============================================================
+# Workflow Execution
+# ============================================================
+
+get_next_phase() {
+    local workflow_file="$1"
+    local current_phase="$2"
+
+    local phases=$(parse_workflow_phases "$workflow_file")
+    local found_current=false
+
+    for phase in $phases; do
+        if [[ "$found_current" == "true" ]]; then
+            echo "$phase"
+            return
+        fi
+        if [[ "$phase" == "$current_phase" ]]; then
+            found_current=true
+        fi
+    done
+
+    # No next phase
+    echo ""
+}
+
+get_first_phase() {
+    local workflow_file="$1"
+    parse_workflow_phases "$workflow_file" | head -1
+}
+
+check_phase_dependencies_met() {
+    local workflow_file="$1"
+    local phase_id="$2"
+
+    local deps=$(parse_phase_depends "$workflow_file" "$phase_id")
+
+    if [[ -z "$deps" ]]; then
+        echo "true"
+        return
+    fi
+
+    for dep in $deps; do
+        local dep_status=$(get_state_field "phase_status_$dep")
+        if [[ "$dep_status" != "completed" ]]; then
+            echo "false"
+            return
+        fi
+    done
+
+    echo "true"
+}
+
+execute_phase() {
+    local workflow_file="$1"
+    local phase_id="$2"
+
+    local mode=$(parse_phase_mode "$workflow_file" "$phase_id")
+    local agents=$(parse_phase_agents "$workflow_file" "$phase_id")
+    local requires_approval=$(parse_requires_approval "$workflow_file" "$phase_id")
+
+    echo ""
+    echo -e "${BOLD}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}  Phase: $phase_id ${NC}"
+    echo -e "${CYAN}  Mode: ${mode:-sequential} ${NC}"
+    echo -e "${BOLD}════════════════════════════════════════════════════════════════${NC}"
+    echo ""
+
+    # Human Approval Check
+    if [[ "$requires_approval" == "true" ]]; then
+        echo -e "${YELLOW}⚠️  This phase requires manual approval${NC}"
+        echo -n "Continue? (y/n): "
+        read -r approval
+        if [[ "$approval" != "y" && "$approval" != "Y" ]]; then
+            log_warning "Phase cancelled by user"
+            return 1
+        fi
+    fi
+
+    update_state_field "current_phase" "$phase_id"
+
+    if [[ "${mode:-sequential}" == "parallel" ]]; then
+        execute_parallel "$workflow_file" "$phase_id" "$agents"
+    else
+        execute_sequential "$workflow_file" "$phase_id" "$agents"
+    fi
+
+    update_state_field "phase_status_$phase_id" "completed"
+    log_success "Phase $phase_id completed"
+}
+
+execute_sequential() {
+    local workflow_file="$1"
+    local phase_id="$2"
+    local agents="$3"
+
+    for agent in $agents; do
+        execute_agent "$agent" "$phase_id"
+
+        # Wait for completion
+        wait_for_agent_completion "$agent"
+    done
+}
+
+execute_parallel() {
+    local workflow_file="$1"
+    local phase_id="$2"
+    local agents="$3"
+
+    log_info "Starting parallel execution for: $agents"
+
+    # Generate prompts for all agents
+    echo ""
+    echo -e "${BOLD}The following agents can be executed in parallel:${NC}"
+    echo ""
+
+    local count=1
+    for agent in $agents; do
+        local agent_upper=$(echo "$agent" | tr '[:lower:]' '[:upper:]')
+        echo -e "  ${CYAN}$count. $agent_upper${NC}"
+        ((count++))
+    done
+
+    echo ""
+    echo -e "${YELLOW}Execute each agent in a separate terminal/tab:${NC}"
+    echo ""
+
+    for agent in $agents; do
+        local prompt=$(generate_agent_prompt "$agent" "Review according to your perspective" "$(get_state_field 'workflow')" "$phase_id")
+        local agent_upper=$(echo "$agent" | tr '[:lower:]' '[:upper:]')
+
+        echo -e "${BOLD}═══ $agent_upper ═══${NC}"
+        echo ""
+        echo "$prompt"
+        echo ""
+        echo -e "${BOLD}════════════════════════════════════════${NC}"
+        echo ""
+    done
+
+    echo ""
+    echo -e "${YELLOW}Waiting for completion of all agents...${NC}"
+    echo -e "Press ${BOLD}Enter${NC} when all agents are done"
+    read -r
+
+    # Verify completions
+    for agent in $agents; do
+        if [[ $(check_agent_completed "$agent") != "true" ]]; then
+            log_warning "Agent $agent not yet marked as COMPLETED"
+        fi
+    done
+}
+
+execute_agent() {
+    local agent="$1"
+    local phase="$2"
+    local agent_upper=$(echo "$agent" | tr '[:lower:]' '[:upper:]')
+
+    echo ""
+    echo -e "${BOLD}────────────────────────────────────────────────────────────────${NC}"
+    echo -e "${GREEN}  Agent: $agent_upper ${NC}"
+    echo -e "${BOLD}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+
+    local prompt=$(generate_agent_prompt "$agent" "Execute your task according to workflow definition" "$(get_state_field 'workflow')" "$phase")
+
+    echo -e "${CYAN}Activation Prompt:${NC}"
+    echo ""
+    echo "$prompt"
+    echo ""
+
+    update_state_field "current_agent" "$agent"
+}
+
+wait_for_agent_completion() {
+    local agent="$1"
+
+    echo ""
+    echo -e "${YELLOW}Waiting for agent $agent...${NC}"
+    echo -e "Press ${BOLD}Enter${NC} when the agent is done"
+    read -r
+
+    # Check for handoff
+    local handoff=$(check_comms_for_handoffs)
+    if [[ -n "$handoff" && "$handoff" != "orchestrator" ]]; then
+        log_info "Handoff detected to: $handoff"
+    fi
+}
+
+# ============================================================
+# Main Workflow Runner
+# ============================================================
+
+run_workflow() {
+    local workflow_name="$1"
+    local workflow_file="$PAF_WORKFLOWS_DIR/${workflow_name}.yaml"
+
+    if [[ ! -f "$workflow_file" ]]; then
+        log_error "Workflow not found: $workflow_name"
+        log_info "Available workflows:"
+        ls "$PAF_WORKFLOWS_DIR"/*.yaml 2>/dev/null | xargs -I{} basename {} .yaml
+        exit 1
+    fi
+
+    if [[ ! -f "$COMMS_FILE" ]]; then
+        log_error "COMMS.md not found. Run 'paf init' first."
+        exit 1
+    fi
+
+    # Init State
+    init_state "$workflow_name"
+
+    echo ""
+    echo -e "${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BOLD}║           PAF ORCHESTRATOR v3.0                              ║${NC}"
+    echo -e "${BOLD}║           Autonomous Agent Orchestration                     ║${NC}"
+    echo -e "${BOLD}╠══════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${BOLD}║  Workflow: ${CYAN}$workflow_name${NC}                                        ${BOLD}║${NC}"
+    echo -e "${BOLD}║  Project:  ${CYAN}$(basename "$PROJECT_DIR")${NC}                                  ${BOLD}║${NC}"
+    echo -e "${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    # Show workflow overview
+    echo -e "${BOLD}Workflow phases:${NC}"
+    local phases=$(parse_workflow_phases "$workflow_file")
+    local phase_num=1
+    for phase in $phases; do
+        local mode=$(parse_phase_mode "$workflow_file" "$phase")
+        local agents=$(parse_phase_agents "$workflow_file" "$phase" | tr '\n' ', ' | sed 's/,$//')
+        echo -e "  ${phase_num}. ${CYAN}$phase${NC} (${mode:-sequential}): $agents"
+        ((phase_num++))
+    done
+    echo ""
+
+    echo -n "Start workflow? (y/n): "
+    read -r confirm
+    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+        log_warning "Workflow cancelled"
+        exit 0
+    fi
+
+    # Execute Phases
+    for phase in $phases; do
+        # Check Dependencies
+        if [[ $(check_phase_dependencies_met "$workflow_file" "$phase") != "true" ]]; then
+            log_warning "Dependencies for phase $phase not met"
+            continue
+        fi
+
+        execute_phase "$workflow_file" "$phase"
+    done
+
+    # Workflow Complete
+    update_state_field "status" "completed"
+
+    echo ""
+    echo -e "${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BOLD}║  ${GREEN}✅ WORKFLOW COMPLETED${NC}                                       ${BOLD}║${NC}"
+    echo -e "${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    log_success "Workflow $workflow_name completed successfully"
+}
+
+# ============================================================
+# Status Display
+# ============================================================
+
+show_status() {
+    if [[ ! -f "$STATE_FILE" ]]; then
+        log_warning "No active workflow"
+        return
+    fi
+
+    local workflow=$(get_state_field "workflow")
+    local status=$(get_state_field "status")
+    local current_phase=$(get_state_field "current_phase")
+    local current_agent=$(get_state_field "current_agent")
+
+    echo ""
+    echo -e "${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BOLD}║  PAF Workflow Status                                         ║${NC}"
+    echo -e "${BOLD}╠══════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${BOLD}║  Workflow:      ${CYAN}$workflow${NC}"
+    echo -e "${BOLD}║  Status:        ${GREEN}$status${NC}"
+    echo -e "${BOLD}║  Current Phase: ${YELLOW}$current_phase${NC}"
+    echo -e "${BOLD}║  Current Agent: ${CYAN}$current_agent${NC}"
+    echo -e "${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+}
+
+# ============================================================
+# CLI Handler
+# ============================================================
+
+show_help() {
+    echo ""
+    echo -e "${BOLD}PAF Orchestrator v3.0${NC}"
+    echo ""
+    echo "Usage:"
+    echo "  paf-orchestrator run <workflow>   Start automatic workflow"
+    echo "  paf-orchestrator status           Show current status"
+    echo "  paf-orchestrator list             List available workflows"
+    echo "  paf-orchestrator help             This help"
+    echo ""
+    echo "Workflows:"
+    echo "  full-feature       Complete feature workflow"
+    echo "  perspective-review 10-Perspective Review"
+    echo "  bugfix             Bug-Fix Workflow"
+    echo "  hotfix             Emergency Hotfix"
+    echo "  security-audit     Security Audit"
+    echo "  retrospective      Sprint Retrospective"
+    echo ""
+}
+
+list_workflows() {
+    echo ""
+    echo -e "${BOLD}Available Workflows:${NC}"
+    echo ""
+    for f in "$PAF_WORKFLOWS_DIR"/*.yaml; do
+        if [[ -f "$f" ]]; then
+            local name=$(basename "$f" .yaml)
+            local desc=$(grep "^description:" "$f" | head -1 | sed 's/description: *//' | tr -d '"')
+            echo -e "  ${CYAN}$name${NC}"
+            echo -e "    $desc"
+            echo ""
+        fi
+    done
+}
+
+# ============================================================
+# Main
+# ============================================================
+
+main() {
+    local cmd="${1:-help}"
+
+    case "$cmd" in
+        run)
+            if [[ -z "$2" ]]; then
+                log_error "Workflow name required"
+                echo "Usage: paf-orchestrator run <workflow>"
+                exit 1
+            fi
+            run_workflow "$2"
+            ;;
+        status)
+            show_status
+            ;;
+        list)
+            list_workflows
+            ;;
+        help|--help|-h)
+            show_help
+            ;;
+        *)
+            log_error "Unknown command: $cmd"
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

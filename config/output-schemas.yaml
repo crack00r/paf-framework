@@ -1,0 +1,267 @@
+# PAF Structured Output Schemas
+#
+# Defines JSON schemas for agent outputs.
+# Enables validation, automated aggregation, and machine-readable results.
+last_updated: "2026-01-12"
+
+# =============================================================================
+# COMMON DEFINITIONS
+# =============================================================================
+definitions:
+  finding:
+    type: object
+    required: [id, severity, category, title, description]
+    properties:
+      id:
+        type: string
+        pattern: "^[A-Z]+-[0-9]+$"
+        description: "Unique finding ID (e.g., SEC-001, PERF-003)"
+      severity:
+        type: string
+        enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+      category:
+        type: string
+      title:
+        type: string
+        maxLength: 100
+      description:
+        type: string
+      file:
+        type: string
+        description: "Affected file path"
+      line:
+        type: integer
+        description: "Line number if applicable"
+      recommendation:
+        type: string
+      effort:
+        type: string
+        enum: [trivial, small, medium, large, epic]
+      github_issue:
+        type: string
+        description: "Created GitHub issue URL"
+
+  status:
+    type: string
+    enum: [IDLE, IN_PROGRESS, BLOCKED, COMPLETED, ERROR]
+
+# =============================================================================
+# PERSPECTIVE AGENT OUTPUT
+# =============================================================================
+perspective:
+  type: object
+  required: [agent, status, timestamp, findings, summary]
+  properties:
+    agent:
+      type: string
+      description: "Agent name (e.g., alex, emma)"
+    emoji:
+      type: string
+    status:
+      $ref: "#/definitions/status"
+    timestamp:
+      type: string
+      format: date-time
+    task:
+      type: string
+      description: "Assigned task description"
+    findings:
+      type: array
+      items:
+        $ref: "#/definitions/finding"
+    risk_level:
+      type: string
+      enum: [LOW, MEDIUM, HIGH, CRITICAL]
+    summary:
+      type: string
+      maxLength: 500
+    recommendations:
+      type: array
+      items:
+        type: string
+    metrics:
+      type: object
+      properties:
+        files_reviewed:
+          type: integer
+        issues_found:
+          type: integer
+        critical_count:
+          type: integer
+        high_count:
+          type: integer
+    handoff:
+      type: string
+      default: "@ORCHESTRATOR"
+
+# =============================================================================
+# AGGREGATOR OUTPUT (George)
+# =============================================================================
+aggregator:
+  type: object
+  required: [status, timestamp, agents_completed, total_findings, executive_summary]
+  properties:
+    status:
+      $ref: "#/definitions/status"
+    timestamp:
+      type: string
+      format: date-time
+    sprint:
+      type: string
+    agents_completed:
+      type: array
+      items:
+        type: string
+    agents_blocked:
+      type: array
+      items:
+        type: object
+        properties:
+          agent:
+            type: string
+          reason:
+            type: string
+    total_findings:
+      type: integer
+    findings_by_severity:
+      type: object
+      properties:
+        critical:
+          type: integer
+        high:
+          type: integer
+        medium:
+          type: integer
+        low:
+          type: integer
+        info:
+          type: integer
+    findings_by_category:
+      type: object
+      additionalProperties:
+        type: integer
+    top_issues:
+      type: array
+      maxItems: 10
+      items:
+        $ref: "#/definitions/finding"
+    executive_summary:
+      type: string
+      maxLength: 1000
+    recommendations:
+      type: array
+      items:
+        type: object
+        properties:
+          priority:
+            type: string
+            enum: [P0, P1, P2, P3]
+          action:
+            type: string
+          owner:
+            type: string
+    github_issues_created:
+      type: array
+      items:
+        type: string
+    next_steps:
+      type: array
+      items:
+        type: string
+
+# =============================================================================
+# IMPLEMENTATION AGENT OUTPUT
+# =============================================================================
+implementation:
+  type: object
+  required: [agent, status, timestamp, task, changes]
+  properties:
+    agent:
+      type: string
+    status:
+      $ref: "#/definitions/status"
+    timestamp:
+      type: string
+      format: date-time
+    task:
+      type: string
+    changes:
+      type: array
+      items:
+        type: object
+        required: [file, action]
+        properties:
+          file:
+            type: string
+          action:
+            type: string
+            enum: [created, modified, deleted]
+          lines_added:
+            type: integer
+          lines_removed:
+            type: integer
+          description:
+            type: string
+    tests_added:
+      type: array
+      items:
+        type: string
+    tests_passed:
+      type: boolean
+    blockers:
+      type: array
+      items:
+        type: string
+    handoff:
+      type: string
+
+# =============================================================================
+# REVIEW AGENT OUTPUT
+# =============================================================================
+review:
+  type: object
+  required: [agent, status, timestamp, verdict]
+  properties:
+    agent:
+      type: string
+    status:
+      $ref: "#/definitions/status"
+    timestamp:
+      type: string
+      format: date-time
+    target:
+      type: string
+      description: "PR number or file path reviewed"
+    verdict:
+      type: string
+      enum: [APPROVED, CHANGES_REQUESTED, REJECTED, NEEDS_DISCUSSION]
+    comments:
+      type: array
+      items:
+        type: object
+        properties:
+          file:
+            type: string
+          line:
+            type: integer
+          type:
+            type: string
+            enum: [must-fix, should-fix, nitpick, question, praise]
+          comment:
+            type: string
+    blocking_issues:
+      type: array
+      items:
+        type: string
+    suggestions:
+      type: array
+      items:
+        type: string
+
+# =============================================================================
+# VALIDATION RULES
+# =============================================================================
+validation:
+  strict: false  # Allow additional properties
+  coerce_types: true  # Convert strings to numbers where applicable
+  remove_unknown: false  # Keep unknown fields for extensibility

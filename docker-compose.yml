@@ -1,0 +1,24 @@
+# PAF Framework - Docker Compose
+# Usage: docker-compose up -d
+
+version: '3.8'
+
+services:
+  paf:
+    build: .
+    image: paf-framework:4.4
+    container_name: paf-framework
+    volumes:
+      # Mount your project for review
+      - ./project:/home/paf/project:ro
+      # Persist COMMS.md and outputs
+      - paf-data:/home/paf/.paf/output
+    environment:
+      - PAF_HOME=/home/paf/.paf
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+volumes:
+  paf-data:
+    driver: local

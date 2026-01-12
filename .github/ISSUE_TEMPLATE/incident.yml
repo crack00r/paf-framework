@@ -1,0 +1,89 @@
+name: "🚨 Incident Report"
+description: "Report a production incident"
+title: "[INC-XXX] "
+labels: ["incident"]
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity"
+      options:
+        - "SEV1 - Critical (complete outage)"
+        - "SEV2 - Major (significant impact)"
+        - "SEV3 - Minor (limited impact)"
+    validations:
+      required: true
+
+  - type: input
+    id: start_time
+    attributes:
+      label: "Incident Start Time"
+      description: "When did the incident start? (UTC)"
+      placeholder: "2025-01-09 14:30 UTC"
+    validations:
+      required: true
+
+  - type: input
+    id: end_time
+    attributes:
+      label: "Incident End Time"
+      description: "When was the incident resolved? (UTC)"
+      placeholder: "2025-01-09 15:45 UTC or 'Ongoing'"
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: "Impact"
+      description: "What was affected? How many users?"
+      placeholder: |
+        - Service: API
+        - Users affected: ~1000
+        - Revenue impact: Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Summary"
+      description: "Brief description of what happened"
+      placeholder: "The authentication service became unresponsive..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: "Timeline"
+      description: "Key events during the incident"
+      placeholder: |
+        - 14:30 - Alert triggered
+        - 14:35 - On-call notified
+        - 14:45 - Root cause identified
+        - 15:00 - Fix deployed
+    validations:
+      required: true
+
+  - type: textarea
+    id: root_cause
+    attributes:
+      label: "Root Cause"
+      description: "What caused the incident?"
+      placeholder: "The database connection pool was exhausted due to..."
+
+  - type: textarea
+    id: resolution
+    attributes:
+      label: "Resolution"
+      description: "How was it fixed?"
+      placeholder: "We increased the connection pool size and restarted..."
+
+  - type: textarea
+    id: action_items
+    attributes:
+      label: "Action Items"
+      description: "Follow-up tasks to prevent recurrence"
+      placeholder: |
+        - [ ] Add connection pool monitoring
+        - [ ] Implement auto-scaling
+        - [ ] Update runbook

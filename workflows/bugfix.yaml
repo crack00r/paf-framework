@@ -1,0 +1,72 @@
+# PAF Workflow: Bugfix
+# Standard Bugfix Workflow
+
+name: bugfix
+version: 2.0.0
+description: "Bug analysis, fix, test, review, deploy"
+
+default_timeout: 180
+
+# All agents must follow ~/.paf/docs/AGENT_PROTOCOL.md!
+
+phases:
+  - id: triage
+    name: "Bug Triage"
+    description: "Bug analysis and prioritization"
+    agents:
+      - nina    # 🎯 Technical PM (Triage) - Prioritization
+      - alex    # 🔒 Security Analyst - Security Impact Check
+    mode: parallel
+    communication: .paf/COMMS.md
+    
+  - id: fix
+    name: "Bug Fix"
+    description: "Implementation of fix"
+    agents:
+      - bug-fixer  # 🐛 Bug-Fixer Utility Agent - Specialized Fix Implementation
+      - anna       # Senior Developer - Support
+    mode: sequential
+    depends_on: [triage]
+    communication: .paf/COMMS.md
+    
+  - id: test
+    name: "Testing"
+    description: "Verify fix"
+    agents:
+      - tina    # QA Engineer - Test Verification
+    mode: sequential
+    depends_on: [fix]
+    communication: .paf/COMMS.md
+    
+  - id: review
+    name: "Code Review"
+    description: "Review fix"
+    agents:
+      - rachel  # Code Review Lead
+      - max     # 🔧 Maintainability Check
+    mode: parallel
+    depends_on: [test]
+    communication: .paf/COMMS.md
+    
+  - id: deploy
+    name: "Deployment"
+    description: "Deploy to Production"
+    agents:
+      - tony    # DevOps Engineer - Deployment
+    mode: sequential
+    depends_on: [review]
+    requires_approval: true
+    communication: .paf/COMMS.md
+
+  - id: aggregation
+    name: "Aggregation"
+    description: "Summary and retrospective"
+    agents:
+      - george  # 📊 Aggregator - Retrospective Summary
+    mode: sequential
+    depends_on: [deploy]
+    communication: .paf/COMMS.md
+
+aggregator: george
+
+protocol: ~/.paf/docs/AGENT_PROTOCOL.md

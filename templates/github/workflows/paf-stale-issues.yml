@@ -1,0 +1,87 @@
+# PAF Stale Issues Workflow
+# Automatically marks inactive issues as stale
+
+name: PAF Stale Issues
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    name: Mark Stale Issues
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Mark stale issues and PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Issue settings
+          stale-issue-message: |
+            👋 This issue has been automatically marked as **stale** because it has not had recent activity.
+            
+            It will be closed in **7 days** if no further activity occurs.
+            
+            If this issue is still relevant:
+            - Add a comment explaining the current status
+            - Remove the `stale` label
+            
+            Thank you for your contributions! 🙏
+          
+          stale-issue-label: 'stale'
+          days-before-issue-stale: 14
+          days-before-issue-close: 7
+          
+          # PR settings
+          stale-pr-message: |
+            👋 This pull request has been automatically marked as **stale** because it has not had recent activity.
+            
+            It will be closed in **7 days** if no further activity occurs.
+            
+            Please update this PR or add a comment if it's still in progress.
+          
+          stale-pr-label: 'stale'
+          days-before-pr-stale: 14
+          days-before-pr-close: 7
+          
+          # Exempt labels - these issues/PRs will never be marked stale
+          exempt-issue-labels: |
+            P0
+            P1
+            blocked
+            pinned
+            security
+            incident
+          
+          exempt-pr-labels: |
+            P0
+            P1
+            blocked
+            work-in-progress
+          
+          # Exempt milestones
+          exempt-all-milestones: true
+          
+          # Labels to remove when issue becomes active again
+          labels-to-remove-when-unstale: 'stale'
+          
+          # Don't close issues/PRs, just mark them stale
+          # Set to true to also auto-close
+          close-issue-message: |
+            🔒 This issue has been automatically closed due to inactivity.
+            
+            If this issue is still relevant, please reopen it with updated information.
+          
+          close-pr-message: |
+            🔒 This pull request has been automatically closed due to inactivity.
+            
+            Feel free to reopen if you'd like to continue working on it.
+          
+          # Operations per run (to avoid rate limits)
+          operations-per-run: 100

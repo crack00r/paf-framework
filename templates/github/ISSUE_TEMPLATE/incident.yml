@@ -1,0 +1,102 @@
+name: "🚨 Incident Report"
+description: "Report a production incident"
+title: "[INC] "
+labels: ["incident", "P0"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **Production Incident Report**
+        
+        Please fill out as much information as possible to help with resolution.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity Level"
+      description: "Impact severity"
+      options:
+        - "SEV1 - Critical (system down, all users affected)"
+        - "SEV2 - Major (significant functionality impaired)"
+        - "SEV3 - Minor (limited impact, workaround available)"
+    validations:
+      required: true
+
+  - type: input
+    id: started
+    attributes:
+      label: "Incident Start Time"
+      description: "When did this incident start? (UTC)"
+      placeholder: "YYYY-MM-DD HH:MM UTC"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Incident Summary"
+      description: "Brief description of the incident"
+      placeholder: "What is happening?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: "Impact"
+      description: "Who/what is affected?"
+      placeholder: |
+        - Users affected: [number or percentage]
+        - Services affected: [list]
+        - Revenue impact: [if known]
+    validations:
+      required: true
+
+  - type: textarea
+    id: symptoms
+    attributes:
+      label: "Symptoms"
+      description: "What symptoms are being observed?"
+      placeholder: |
+        - Error messages
+        - Performance degradation
+        - Failed requests
+    validations:
+      required: true
+
+  - type: textarea
+    id: actions
+    attributes:
+      label: "Actions Taken"
+      description: "What has been done so far?"
+      placeholder: |
+        1. [Action 1]
+        2. [Action 2]
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: "Timeline"
+      description: "Chronological events"
+      placeholder: |
+        - HH:MM - Event 1
+        - HH:MM - Event 2
+
+  - type: textarea
+    id: related
+    attributes:
+      label: "Related Issues/PRs"
+      description: "Any related issues or recent changes"
+      placeholder: |
+        - #123
+        - PR #456 (deployed recently)
+
+  - type: checkboxes
+    id: notifications
+    attributes:
+      label: "Notifications Sent"
+      options:
+        - label: "On-call engineer notified"
+        - label: "Team lead notified"
+        - label: "Status page updated"
+        - label: "Customer communication sent"

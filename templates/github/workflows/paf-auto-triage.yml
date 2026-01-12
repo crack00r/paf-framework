@@ -1,0 +1,134 @@
+# PAF Auto-Triage Workflow
+# Automatically adds new issues to appropriate project boards
+
+name: PAF Auto-Triage
+
+on:
+  issues:
+    types: [opened, labeled]
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  triage-to-sprint:
+    name: Add to Sprint Board
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'finding') ||
+      contains(github.event.issue.labels.*.name, 'task') ||
+      contains(github.event.issue.labels.*.name, 'bug')
+    steps:
+      - name: Add to Sprint Board
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PAF_SPRINT_BOARD_URL }}
+          github-token: ${{ secrets.PAF_PROJECT_TOKEN }}
+
+  triage-to-security:
+    name: Add to Security Board
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'security') ||
+      contains(github.event.issue.labels.*.name, '🔒 alex') ||
+      contains(github.event.issue.labels.*.name, '🔍 scanner')
+    steps:
+      - name: Add to Security Board
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PAF_SECURITY_BOARD_URL }}
+          github-token: ${{ secrets.PAF_PROJECT_TOKEN }}
+
+  triage-to-backlog:
+    name: Add to Product Backlog
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'feature') ||
+      contains(github.event.issue.labels.*.name, '📝 maya') ||
+      contains(github.event.issue.labels.*.name, '🔬 iris') ||
+      contains(github.event.issue.labels.*.name, '💡 ava')
+    steps:
+      - name: Add to Product Backlog
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PAF_BACKLOG_BOARD_URL }}
+          github-token: ${{ secrets.PAF_PROJECT_TOKEN }}
+
+  triage-to-architecture:
+    name: Add to Architecture Board
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'adr') ||
+      contains(github.event.issue.labels.*.name, 'architecture') ||
+      contains(github.event.issue.labels.*.name, '🏛️ sophia') ||
+      contains(github.event.issue.labels.*.name, '🔀 david')
+    steps:
+      - name: Add to Architecture Board
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PAF_ARCH_BOARD_URL }}
+          github-token: ${{ secrets.PAF_PROJECT_TOKEN }}
+
+  triage-to-bugs:
+    name: Add to Bug Tracker
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'incident') ||
+      contains(github.event.issue.labels.*.name, '🧪 tina') ||
+      contains(github.event.issue.labels.*.name, '🚨 inci') ||
+      contains(github.event.issue.labels.*.name, '💬 feedback')
+    steps:
+      - name: Add to Bug Tracker
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PAF_BUG_BOARD_URL }}
+          github-token: ${{ secrets.PAF_PROJECT_TOKEN }}
+
+  triage-to-techdebt:
+    name: Add to Tech Debt Board
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'tech-debt') ||
+      contains(github.event.issue.labels.*.name, '🔧 max') ||
+      contains(github.event.issue.labels.*.name, '📏 stan') ||
+      contains(github.event.issue.labels.*.name, '⚙️ otto')
+    steps:
+      - name: Add to Tech Debt Board
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PAF_TECHDEBT_BOARD_URL }}
+          github-token: ${{ secrets.PAF_PROJECT_TOKEN }}
+
+  triage-to-release:
+    name: Add to Release Pipeline
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.issue.labels.*.name, 'release') ||
+      contains(github.event.issue.labels.*.name, '🚀 tony') ||
+      contains(github.event.issue.labels.*.name, '📦 rel') ||
+      contains(github.event.issue.labels.*.name, '🔄 miggy')
+    steps:
+      - name: Add to Release Pipeline
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PAF_RELEASE_BOARD_URL }}
+          github-token: ${{ secrets.PAF_PROJECT_TOKEN }}
+
+  add-agent-label:
+    name: Add Agent Label
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'finding')
+    steps:
+      - name: Add 🤖 agent label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.issue.labels.map(l => l.name);
+            if (!labels.includes('🤖 agent')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['🤖 agent']
+              });
+            }

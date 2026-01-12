@@ -1,0 +1,238 @@
+# PAF Spawning Configuration
+#
+# Defines spawning modes for agents.
+# Supports fork (efficient) and plugin (hierarchical).
+last_updated: "2026-01-12"
+
+# =============================================================================
+# DEFAULT MODE
+# =============================================================================
+defaults:
+  mode: fork  # Options: fork, plugin, auto
+  timeout_ms: 900000  # 15 minutes - increased for complex tasks
+  context_size: 50000  # Tokens per forked context
+  model: claude-sonnet-4-20250514  # Default model for agents
+
+# =============================================================================
+# MODE SELECTION RULES
+# =============================================================================
+mode_selection:
+  # Auto-select mode based on conditions
+  auto:
+    # Use plugin for agents that can spawn others
+    use_plugin_when:
+      - agent_can_spawn: true
+      - task_duration_estimate: ">30min"
+      - hierarchical_workflow: true
+
+    # Use fork for leaf agents (can't spawn)
+    use_fork_when:
+      - agent_can_spawn: false
+      - parallel_review: true
+      - quick_build: true
+
+# =============================================================================
+# AGENT SPAWNING CAPABILITIES
+# =============================================================================
+agents:
+  # CTO - Root orchestrator
+  cto:
+    mode: plugin  # Needs to spawn many agents
+    can_spawn: all
+    context_size: 100000
+    model: claude-opus-4-5-20251101
+
+  # Perspective Agents - Leaf nodes, parallel execution
+  perspectives:
+    mode: fork
+    can_spawn: false
+    context_size: 50000
+    model: claude-sonnet-4-20250514
+    agents:
+      - alex   # 🔒 Security
+      - emma   # ⚡ Performance
+      - sam    # 🎨 UX
+      - david  # 🔀 Scalability
+      - max    # 🔧 Maintainability
+      - luna   # ♿ Accessibility
+      - tom    # 💰 Cost
+      - nina   # 🎯 Triage
+      - leo    # 📚 Documentation
+      - ava    # 💡 Innovation
+
+  # Discovery Agents - Leaf nodes
+  discovery:
+    mode: fork
+    can_spawn: false
+    context_size: 50000
+    agents:
+      - ben    # 📊 Data
+      - maya   # 📝 Product
+      - iris   # 🔬 Research
+
+  # Planning Agents - Hierarchical
+  planning:
+    sophia:
+      mode: plugin  # Can spawn michael, kai
+      can_spawn: [michael, kai]
+      context_size: 75000
+    michael:
+      mode: fork
+      can_spawn: false
+      context_size: 50000
+    kai:
+      mode: fork
+      can_spawn: false
+      context_size: 50000
+
+  # Implementation Agents - Flat Structure (CTO spawns all directly)
+  implementation:
+    sarah:
+      mode: fork  # Coordinates only, doesn't spawn (Option B)
+      can_spawn: false
+      context_size: 100000
+    anna:
+      mode: fork
+      can_spawn: false
+      context_size: 100000  # Larger for code changes
+    chris:
+      mode: fork
+      can_spawn: false
+      context_size: 100000
+    dan:
+      mode: fork
+      can_spawn: false
+      context_size: 100000
+    tina:
+      mode: fork
+      can_spawn: false
+      context_size: 100000
+
+  # Review Agents - Hierarchical
+  review:
+    rachel:
+      mode: plugin  # Can spawn stan, scanner, perf
+      can_spawn: [stan, scanner, perf]
+      context_size: 75000
+    stan:
+      mode: fork
+      can_spawn: false
+    scanner:
+      mode: fork
+      can_spawn: false
+    perf:
+      mode: fork
+      can_spawn: false
+
+  # Deployment Agents - Hierarchical (Tony leads)
+  deployment:
+    tony:
+      mode: plugin  # Can spawn miggy, rel
+      can_spawn: [miggy, rel]
+      context_size: 50000
+    rel:
+      mode: fork
+      can_spawn: false
+      context_size: 50000
+    miggy:
+      mode: fork
+      can_spawn: false
+      context_size: 50000
+
+  # Operations Agents - Hierarchical (Inci leads)
+  operations:
+    inci:
+      mode: plugin  # Can spawn monitor, feedback
+      can_spawn: [monitor, feedback]
+      context_size: 50000
+    monitor:
+      mode: fork
+      can_spawn: false
+      context_size: 50000
+    feedback:
+      mode: fork
+      can_spawn: false
+      context_size: 50000
+
+  # Retrospective Agents - Hierarchical (George leads)
+  retrospective:
+    george:
+      mode: plugin  # Can spawn otto, docu
+      can_spawn: [otto, docu]
+      context_size: 75000  # George needs more for aggregation
+    otto:
+      mode: fork
+      can_spawn: false
+      context_size: 75000
+    docu:
+      mode: fork
+      can_spawn: false
+      context_size: 75000
+
+  # Utility Agents
+  utility:
+    gideon:
+      mode: plugin  # GitHub setup needs full access
+      can_spawn: false
+      context_size: 50000
+    bug-fixer:
+      mode: fork
+      can_spawn: false
+      context_size: 100000  # Needs context for code fixes
+    validator:
+      mode: fork
+      can_spawn: false
+      context_size: 50000
+
+# =============================================================================
+# BUILD PRESET OVERRIDES
+# =============================================================================
+builds:
+  quick:
+    mode: fork  # Always fork for speed
+    timeout_ms: 600000  # 10 minutes - increased from 5min (was too short)
+    context_size: 30000
+    max_parallel_agents: 4  # Limit parallel agents to avoid overload
+
+  standard:
+    mode: auto  # Auto-select based on agents
+    timeout_ms: 900000  # 15 minutes - increased from 10min
+    context_size: 50000
+    max_parallel_agents: 4  # Limit parallel agents to avoid overload
+
+  comprehensive:
+    mode: auto
+    timeout_ms: 1200000  # 20 minutes - increased from 15min for complex tasks
+    context_size: 75000
+    max_parallel_agents: 4  # Limit parallel agents to avoid overload
+
+# =============================================================================
+# FALLBACK CONFIGURATION
+# =============================================================================
+fallback:
+  # If fork fails, fall back to plugin
+  fork_failure_action: use_plugin
+
+  # If plugin fails, retry with different timeout
+  plugin_failure_action: retry_with_timeout
+  retry_timeout_ms: 600000
+
+  # Maximum retries before giving up
+  max_retries: 2
+
+# =============================================================================
+# MONITORING
+# =============================================================================
+monitoring:
+  # Track which mode was used
+  log_mode_selection: true
+
+  # Compare performance between modes
+  track_performance: true
+
+  # Metrics to collect
+  metrics:
+    - spawn_time_ms
+    - total_tokens_used
+    - memory_mb
+    - success_rate

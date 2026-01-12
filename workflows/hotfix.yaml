@@ -1,0 +1,78 @@
+# PAF Workflow: Hotfix
+# Emergency hotfix for critical production issues
+
+name: hotfix
+version: 2.0.0
+description: "Emergency Workflow: Quick fix with minimal review"
+
+default_timeout: 120
+
+# Hotfix has shorter timeouts
+urgent: true
+
+# All agents must follow ~/.paf/docs/AGENT_PROTOCOL.md!
+
+phases:
+  - id: incident
+    name: "Incident Declaration"
+    description: "Document problem"
+    agents:
+      - inci    # Incident Manager - Problem Analysis
+      - nina    # 🎯 Technical PM (Triage) - Priority Assessment
+    mode: parallel
+    communication: .paf/COMMS.md
+
+  - id: quick-fix
+    name: "Quick Fix"
+    description: "Quick implementation"
+    agents:
+      - bug-fixer  # 🐛 Bug-Fixer Utility Agent - Quick Fix
+    mode: sequential
+    depends_on: [incident]
+    timeout: 60
+    communication: .paf/COMMS.md
+    
+  - id: quick-review
+    name: "Quick Review"
+    description: "15-minute speed review"
+    agents:
+      - rachel  # Code Review Lead - Quick Approval
+      - alex    # 🔒 Security Analyst - Security Check
+    mode: parallel
+    depends_on: [quick-fix]
+    timeout: 60
+    communication: .paf/COMMS.md
+    
+  - id: deploy
+    name: "Direct Production Deploy"
+    description: "Direct to production"
+    agents:
+      - tony    # DevOps Engineer - Emergency Deploy
+    mode: sequential
+    depends_on: [quick-review]
+    skip_staging: true
+    communication: .paf/COMMS.md
+    
+  - id: verify
+    name: "Production Verification"
+    description: "Verify that fix works"
+    agents:
+      - monitor # Monitoring Agent - System Health
+      - tina    # QA Engineer - Quick Verification
+    mode: parallel
+    depends_on: [deploy]
+    communication: .paf/COMMS.md
+    
+  - id: postmortem
+    name: "Post-Mortem"
+    description: "Lessons Learned"
+    agents:
+      - george  # 📋 Aggregator - Incident Summary
+      - otto    # Process Optimizer - Improvement Suggestions
+    mode: sequential
+    depends_on: [verify]
+    communication: .paf/COMMS.md
+
+aggregator: george
+
+protocol: ~/.paf/docs/AGENT_PROTOCOL.md

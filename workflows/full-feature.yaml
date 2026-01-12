@@ -1,0 +1,118 @@
+# PAF Workflow: Full Feature Development
+# Complete feature development workflow from idea to production
+
+name: full-feature
+version: 2.0.0
+description: "Complete Feature Workflow: Discovery → Planning → Perspectives → Implementation → Review → Deployment"
+
+# Timeout per agent in seconds (0 = no timeout)
+default_timeout: 300
+
+# Human approval before critical phases
+require_approval_before:
+  - deployment
+
+# All agents must follow ~/.paf/docs/AGENT_PROTOCOL.md!
+
+phases:
+  - id: discovery
+    name: "Discovery Phase"
+    description: "Research, stakeholder analysis, benchmarking"
+    agents:
+      - maya    # Product Manager - Requirements
+      - iris    # Innovation Scout - Trends & Alternatives
+      - ben     # Data Analyst - Metrics
+    mode: parallel
+    communication: .paf/COMMS.md
+    
+  - id: planning
+    name: "Planning Phase"
+    description: "Architecture, Feature Specs, Timeline"
+    agents:
+      - sophia  # Software Architect - System Design
+      - michael # Tech Lead - Technical Planning
+      - kai     # Project Manager - Timeline & Resources
+    mode: sequential
+    depends_on: [discovery]
+    communication: .paf/COMMS.md
+    
+  - id: perspectives
+    name: "Perspective Review"
+    description: "10-perspective review of the plan"
+    agents:
+      - alex    # 🔒 Security Analyst
+      - emma    # ⚡ Performance Engineer
+      - sam     # 🎨 UX Designer
+      - david   # 🔀 Solutions Architect (Scalability)
+      - max     # 🔧 Senior Dev (Maintainability)
+      - luna    # ♿ Accessibility Expert
+      - tom     # 💰 FinOps Engineer (Cost)
+      - nina    # 🎯 Technical PM (Triage)
+      - leo     # 📚 Technical Writer (Documentation)
+      - ava     # 💡 Innovation Lead
+    mode: parallel
+    depends_on: [planning]
+    communication: .paf/COMMS.md
+    
+  - id: implementation
+    name: "Implementation"
+    description: "Code development"
+    agents:
+      - anna    # Senior Developer - Complex Logic
+      - chris   # Full-Stack Developer - Integration
+      - dan     # Backend Developer - APIs & Database
+      - sarah   # Frontend Developer - UI
+      - tina    # QA Engineer - Testing
+    mode: sequential
+    depends_on: [perspectives]
+    communication: .paf/COMMS.md
+    
+  - id: review
+    name: "Code Review"
+    description: "Automated and manual reviews"
+    agents:
+      - rachel  # Code Review Lead - Coordination
+      - scanner # Security Scanner - Automated
+      - stan    # Standards Checker - Code Standards
+      - perf    # Performance Analyzer - Benchmarks
+    mode: parallel
+    depends_on: [implementation]
+    communication: .paf/COMMS.md
+    
+  - id: deployment
+    name: "Deployment"
+    description: "Staging and production deployment"
+    agents:
+      - tony    # DevOps Engineer - CI/CD
+      - miggy   # Migration Specialist - Database
+      - rel     # Release Manager - Versioning
+    mode: sequential
+    depends_on: [review]
+    requires_approval: true
+    communication: .paf/COMMS.md
+    
+  - id: operations
+    name: "Post-Deployment"
+    description: "Monitoring and feedback"
+    agents:
+      - monitor  # Monitoring Agent - System Health
+      - feedback # Feedback Collector - User Feedback
+      - inci     # Incident Manager - Issues
+    mode: parallel
+    depends_on: [deployment]
+    communication: .paf/COMMS.md
+    
+  - id: retrospective
+    name: "Retrospective"
+    description: "Lessons learned and documentation"
+    agents:
+      - george  # 📋 Aggregator - Summary
+      - otto    # Process Optimizer - Improvements
+      - docu    # Documentation Generator - Docs
+    mode: sequential
+    depends_on: [operations]
+    communication: .paf/COMMS.md
+
+aggregator: george
+
+protocol: ~/.paf/docs/AGENT_PROTOCOL.md
