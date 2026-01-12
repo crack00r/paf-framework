@@ -1001,11 +1001,16 @@ IF --autonomous flag active:
 | **Deployment** | Tony (DevOps) | Miggy, Rel |
 | **Security Check** | Alex (Security) | Scanner |
 | **Code Review** | Rachel (Review Lead) | Stan, Perf |
-| **Documentation** | Leo (Docs) | Docu |
+| **Documentation** | Leo (Docs) - **MANDATORY!** | Docu |
 | **Planning** | Sophia (Architect) | Michael, Kai |
 | **Aggregation** | George (Scrum Master) | Otto |
 
 **NOTE:** Implementation Team is spawned DIRECTLY by CTO (not via Sarah).
+
+**CRITICAL:** Leo (Documentation) is MANDATORY for ALL projects that produce output!
+- Always spawn Leo BEFORE marking project complete
+- Leo must create/update README.md (not placeholder!)
+- Without Leo completion, project is NOT finished!
 
 ### Autonomous Workflow (correct)
 
@@ -1034,11 +1039,46 @@ Phase 4: Deployment
 2. Tony deploys, spawns Rel for Release Notes
 3. Release Issues in Release Board
 
-Phase 5: Retrospective
+Phase 5: Documentation (MANDATORY!)
+1. CTO spawns Leo (Technical Writer)
+2. Leo creates/updates README.md with:
+   - Project description
+   - How to use/play/run
+   - Technical details
+   - Setup instructions
+3. Leo creates any additional docs needed
+4. Documentation is committed with code
+
+Phase 6: Retrospective
 1. CTO spawns George (Scrum Master)
 2. George aggregates all COMMS.md entries
 3. Otto optimizes processes
-4. Docu updates documentation
+4. Docu updates additional documentation
+```
+
+### CRITICAL: Documentation Checklist (MANDATORY!)
+
+**BEFORE marking any project as COMPLETED, the CTO MUST verify:**
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║  COMPLETION CHECKLIST - ALL MUST BE TRUE!                        ║
+╠══════════════════════════════════════════════════════════════════╣
+║  [ ] README.md exists and is NOT a placeholder                   ║
+║  [ ] README.md contains:                                         ║
+║      - Project description                                       ║
+║      - How to run/use the project                               ║
+║      - Technical stack/requirements                              ║
+║      - Setup instructions (if applicable)                        ║
+║  [ ] All code is committed and pushed                           ║
+║  [ ] Deployment is verified and working                         ║
+║  [ ] Leo (Documentation) was spawned and completed               ║
+╚══════════════════════════════════════════════════════════════════╝
+
+IF ANY ITEM IS FALSE:
+→ DO NOT mark project as completed
+→ Spawn missing agents (especially Leo!)
+→ Complete checklist before final report
 ```
 
 ### Agent Communication Flow
@@ -1211,7 +1251,7 @@ In Autonomous Mode, the CTO gives regular status updates:
 ```markdown
 ## 🎪 CTO Autonomous Progress
 
-### Phase: Implementation (3/6)
+### Phase: Implementation (3/7)
 **Completed:**
 - ✅ Project Setup
 - ✅ Core Architecture
@@ -1222,12 +1262,19 @@ In Autonomous Mode, the CTO gives regular status updates:
 
 **Pending:**
 - ⏳ Testing
+- ⏳ Documentation (Leo) ← MANDATORY!
 - ⏳ Deployment
 
 **Decisions Made:**
 - Hosting: Cloudflare Pages
 - Styling: Tailwind CSS
 - State: Zustand
+
+**Completion Checklist:**
+- [ ] README.md complete (NOT placeholder)
+- [ ] Leo (Documentation) spawned and completed
+- [ ] Deployment verified
+- [ ] All code committed
 
 **ETA:** ~15 minutes remaining
 ```
@@ -1236,17 +1283,28 @@ In Autonomous Mode, the CTO gives regular status updates:
 
 Autonomous Mode stops ONLY when:
 
-1. **Product ready** - Deployed and functional
+1. **Product ready** - Deployed, functional, AND DOCUMENTED
 2. **Critical error** - Not automatically solvable
 3. **External dependency** - API Key, Secrets, etc.
 4. **User Interrupt** - User manually aborts
 
+**CRITICAL: "Product ready" REQUIRES:**
+- Code deployed and working
+- README.md complete (NOT placeholder!)
+- Leo (Documentation) spawned and completed
+- All checklist items verified
+
 ```
 IF stopCondition:
-    1. Output status report
-    2. Explain why stopped
-    3. Suggest next steps
-    4. Wait for User input
+    1. Verify COMPLETION CHECKLIST (see above)
+    2. IF checklist incomplete:
+       → DO NOT stop!
+       → Spawn missing agents (Leo if docs missing)
+       → Complete all items first
+    3. Output status report
+    4. Explain why stopped
+    5. Suggest next steps
+    6. Wait for User input
 ```
 
 ### Autonomous Mode Flags

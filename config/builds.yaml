@@ -259,14 +259,16 @@ quality_gates:
   quick:
     required:
       - "All spawned agents complete"
-    
+
   standard:
     required:
       - "All spawned agents complete"
       - "All perspectives reviewed"
       - "Critical issues documented"
       - "Recommendations provided"
-      
+      - "README.md complete (NOT placeholder!)"  # MANDATORY!
+      - "Leo (Documentation) completed"          # MANDATORY!
+
   comprehensive:
     required:
       - "All spawned agents complete"
@@ -275,6 +277,9 @@ quality_gates:
       - "Risk matrix complete"
       - "Action plan included"
       - "George aggregation complete"
+      - "README.md complete (NOT placeholder!)"  # MANDATORY!
+      - "Leo (Documentation) completed"          # MANDATORY!
+      - "Docu verified documentation"            # MANDATORY!
 
 # ============================================================================
 # EXCLUDED AGENTS (Intentional)
