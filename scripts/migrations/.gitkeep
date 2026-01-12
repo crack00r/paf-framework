@@ -1,0 +1,22 @@
+# PAF Migrations Directory
+
+This directory contains migration scripts that run automatically during updates.
+
+## Structure
+
+Migration scripts should be named with a timestamp prefix:
+- YYYYMMDD_description.sh
+
+Example: 20260110_add_new_agent.sh
+
+## Migration Script Requirements
+
+Each migration script must:
+1. Be executable (chmod +x)
+2. Exit with 0 on success
+3. Print migration status to stdout
+
+## Execution
+
+Migrations are executed in alphabetical order by update.sh.
+A .migrations_applied file in PAF_HOME tracks which migrations have been run.

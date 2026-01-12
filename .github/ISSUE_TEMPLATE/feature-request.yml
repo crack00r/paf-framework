@@ -1,0 +1,57 @@
+name: "✨ Feature Request"
+description: "Suggest a new feature or enhancement"
+title: "[FEAT] "
+labels: ["feature"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Request Type"
+      options:
+        - "New Feature"
+        - "Enhancement"
+        - "Integration"
+        - "Performance Improvement"
+        - "UX Improvement"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem / Motivation"
+      description: "What problem does this solve?"
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution"
+      description: "How should this be implemented?"
+      placeholder: "I would like to see..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "What other solutions have you considered?"
+      placeholder: "I've also considered..."
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance Criteria"
+      description: "How do we know this is done?"
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional Context"
+      description: "Mockups, examples, references"

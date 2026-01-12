@@ -1,0 +1,63 @@
+# PAF Workflow: Security Audit
+# Comprehensive security review
+
+name: security-audit
+version: 2.0.0
+description: "Complete security audit with automated and manual checks"
+
+default_timeout: 300
+
+# All agents must follow ~/.paf/docs/AGENT_PROTOCOL.md!
+
+phases:
+  - id: scope
+    name: "Scope Definition"
+    description: "Define audit scope"
+    agents:
+      - alex    # 🔒 Security Analyst - Lead for scope
+      - nina    # 🎯 Technical PM (Triage) - Prioritization
+    mode: parallel
+    communication: .paf/COMMS.md
+
+  - id: automated
+    name: "Automated Scanning"
+    description: "Automated security scans"
+    agents:
+      - scanner # Security Scanner
+    mode: sequential
+    depends_on: [scope]
+    communication: .paf/COMMS.md
+
+  - id: manual
+    name: "Manual Review"
+    description: "Manual security review"
+    agents:
+      - alex    # 🔒 Security Analyst - Deep Review
+      - max     # 🔧 Maintainability - Code Quality Check
+    mode: parallel
+    depends_on: [automated]
+    communication: .paf/COMMS.md
+
+  - id: architecture
+    name: "Architecture Security Review"
+    description: "Check architecture security"
+    agents:
+      - david   # 🔀 Solutions Architect - Security Architecture
+      - sophia  # Architect - System Design Review
+    mode: parallel
+    depends_on: [manual]
+    communication: .paf/COMMS.md
+
+  - id: report
+    name: "Security Report"
+    description: "Document findings"
+    agents:
+      - leo     # 📚 Technical Writer - Documentation
+      - george  # 📋 Aggregator - Summary
+    mode: parallel
+    depends_on: [architecture]
+    communication: .paf/COMMS.md
+
+aggregator: george
+
+protocol: ~/.paf/docs/AGENT_PROTOCOL.md

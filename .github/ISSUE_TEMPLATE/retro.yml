@@ -1,0 +1,83 @@
+name: "📊 Sprint Retrospective"
+description: "Document sprint retrospective findings"
+title: "[RETRO] Sprint X - "
+labels: ["retrospective"]
+body:
+  - type: input
+    id: sprint
+    attributes:
+      label: "Sprint"
+      description: "Which sprint is this for?"
+      placeholder: "Sprint 5 (Jan 6-20, 2025)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Sprint Summary"
+      description: "High-level overview of the sprint"
+      placeholder: |
+        - Velocity: 42 points
+        - Completed: 8 issues
+        - Carried over: 2 issues
+    validations:
+      required: true
+
+  - type: textarea
+    id: went_well
+    attributes:
+      label: "What Went Well 🎉"
+      description: "Positive aspects of the sprint"
+      placeholder: |
+        - Team collaboration was excellent
+        - All critical bugs were fixed
+        - New feature launched successfully
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvements
+    attributes:
+      label: "What Could Be Improved 🔧"
+      description: "Areas for improvement"
+      placeholder: |
+        - Code review turnaround was slow
+        - Testing coverage needs attention
+        - Documentation lagged behind
+    validations:
+      required: true
+
+  - type: textarea
+    id: action_items
+    attributes:
+      label: "Action Items 📋"
+      description: "Specific actions for next sprint"
+      placeholder: |
+        - [ ] Implement PR review SLA
+        - [ ] Add e2e tests for auth flow
+        - [ ] Update API documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: kudos
+    attributes:
+      label: "Kudos 🌟"
+      description: "Shoutouts to team members"
+      placeholder: |
+        - @sarah for the excellent refactoring
+        - @alex for catching the security issue
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: "Metrics"
+      description: "Sprint metrics and stats"
+      placeholder: |
+        | Metric | Value |
+        |--------|-------|
+        | Velocity | 42 |
+        | Bugs Fixed | 5 |
+        | New Features | 3 |
+        | Tech Debt | 2 |

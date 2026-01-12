@@ -1,0 +1,75 @@
+name: "✨ Feature Request"
+description: "Suggest a new feature or enhancement"
+title: "[FEAT] "
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature!
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Feature Type"
+      description: "What kind of feature is this?"
+      options:
+        - "New Feature"
+        - "Enhancement"
+        - "Integration"
+        - "Performance Improvement"
+        - "Developer Experience"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem Statement"
+      description: "What problem does this solve?"
+      placeholder: "Describe the problem this feature would solve..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution"
+      description: "How should this be implemented?"
+      placeholder: "Describe your proposed solution..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "What alternatives have you considered?"
+      placeholder: "Describe any alternative solutions..."
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: "User Story"
+      description: "As a [user], I want [goal] so that [benefit]"
+      placeholder: |
+        As a developer,
+        I want to be able to ...
+        So that I can ...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority Suggestion"
+      description: "How important is this feature?"
+      options:
+        - "P1 - High (core functionality)"
+        - "P2 - Medium (useful improvement)"
+        - "P3 - Low (nice to have)"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional Context"
+      description: "Any other context, mockups, or examples"

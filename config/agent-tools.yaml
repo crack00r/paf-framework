@@ -1,0 +1,241 @@
+# PAF Agent Tool Restrictions
+#
+# Defines allowed and denied tools per agent category.
+# Uses Claude Code 2.1.x tool restriction format.
+last_updated: "2026-01-12"
+
+# =============================================================================
+# PERSPECTIVE AGENTS (Read-only reviewers - no code modifications)
+# =============================================================================
+perspectives:
+  default:
+    allowedTools:
+      - Read
+      - Grep
+      - Glob
+      - Bash  # For read-only commands like ls, find, cat
+      - WebFetch
+      - WebSearch
+    disallowedTools:
+      - Write
+      - Edit
+      - NotebookEdit
+
+  # Security needs additional scanning tools
+  alex:
+    extends: perspectives.default
+    allowedTools:
+      - Bash  # Security scans: npm audit, trivy, etc.
+
+  # Performance needs profiling
+  emma:
+    extends: perspectives.default
+    allowedTools:
+      - Bash  # Performance: lighthouse, bundle-analyzer
+
+# =============================================================================
+# DISCOVERY AGENTS (Requirements research - read-only)
+# Added by config-fixer
+# =============================================================================
+discovery:
+  default:
+    allowedTools:
+      - Read
+      - Grep
+      - Glob
+      - Bash  # For read-only commands like ls, find, cat
+      - WebFetch
+      - WebSearch
+    disallowedTools:
+      - Write
+      - Edit
+      - NotebookEdit
+
+  ben:
+    extends: discovery.default
+    # Technical Discovery Lead
+
+  maya:
+    extends: discovery.default
+    # User Research Lead
+
+  iris:
+    extends: discovery.default
+    # Requirements Analyst
+
+# =============================================================================
+# IMPLEMENTATION AGENTS (Can modify code)
+# =============================================================================
+implementation:
+  default:
+    allowedTools:
+      - Read
+      - Write
+      - Edit
+      - Grep
+      - Glob
+      - Bash
+      - NotebookEdit
+    disallowedTools: []
+
+  sarah:
+    extends: implementation.default
+    # Team lead - full access
+
+  tina:
+    extends: implementation.default
+    # QA - can write tests
+
+# =============================================================================
+# REVIEW AGENTS (Read + limited write for annotations)
+# =============================================================================
+review:
+  default:
+    allowedTools:
+      - Read
+      - Grep
+      - Glob
+      - Bash
+    disallowedTools:
+      - Write
+      - Edit
+
+  rachel:
+    extends: review.default
+    allowedTools:
+      - Edit  # Can add review comments
+
+# =============================================================================
+# DEPLOYMENT AGENTS (Infrastructure access)
+# =============================================================================
+deployment:
+  default:
+    allowedTools:
+      - Read
+      - Bash  # Deploy commands
+      - Grep
+      - Glob
+    disallowedTools:
+      - Write  # Use IaC, not direct file writes
+      - Edit
+
+# =============================================================================
+# UTILITY AGENTS
+# =============================================================================
+utility:
+  bug-fixer:
+    allowedTools:
+      - Read
+      - Write
+      - Edit
+      - Grep
+      - Glob
+      - Bash
+    disallowedTools: []
+
+  validator:
+    allowedTools:
+      - Read
+      - Bash
+      - Grep
+      - Glob
+    disallowedTools:
+      - Write
+      - Edit
+
+  gideon:
+    allowedTools:
+      - Read
+      - Write
+      - Bash  # gh CLI commands
+      - Grep
+      - Glob
+    disallowedTools: []
+
+# =============================================================================
+# TEAM LEADS WITH SPAWNING AUTHORITY
+# =============================================================================
+team_leads:
+  sophia:
+    allowedTools:
+      - Read
+      - Write
+      - Edit
+      - Bash
+      - Grep
+      - Glob
+      - Task  # Can spawn Michael, Kai
+      - WebFetch
+    disallowedTools: []
+
+  rachel:
+    allowedTools:
+      - Read
+      - Write
+      - Edit
+      - Bash
+      - Grep
+      - Glob
+      - Task  # Can spawn Stan, Scanner, Perf
+      - WebFetch
+    disallowedTools: []
+
+  sarah:
+    allowedTools:
+      - Read
+      - Write
+      - Edit
+      - Bash
+      - Grep
+      - Glob
+      - Task  # Can spawn Chris, Dan, Anna, Tina
+    disallowedTools: []
+
+  tony:
+    allowedTools:
+      - Read
+      - Bash
+      - Grep
+      - Glob
+      - Task  # Can spawn Miggy, Rel
+    disallowedTools:
+      - Write
+      - Edit
+
+  inci:
+    allowedTools:
+      - Read
+      - Bash
+      - Grep
+      - Glob
+      - Task  # Can spawn Monitor, Feedback
+    disallowedTools:
+      - Write
+      - Edit
+
+  george:
+    allowedTools:
+      - Read
+      - Write
+      - Bash
+      - Grep
+      - Glob
+      - Task  # Can spawn Otto, Docu
+    disallowedTools: []
+
+# =============================================================================
+# ORCHESTRATION
+# =============================================================================
+orchestration:
+  cto:
+    allowedTools:
+      - Read
+      - Write
+      - Edit
+      - Bash
+      - Grep
+      - Glob
+      - Task  # Can spawn all agents
+      - WebFetch
+      - WebSearch
+    disallowedTools: []

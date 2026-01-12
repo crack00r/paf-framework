@@ -1,0 +1,134 @@
+# GitHub Labeler Configuration
+# Auto-labels PRs based on changed files
+
+# Agent Categories
+orchestration:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/orchestration/**'
+
+discovery:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/discovery/**'
+
+planning:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/planning/**'
+
+implementation:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/implementation/**'
+
+review:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/review/**'
+
+deployment:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/deployment/**'
+
+operations:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/operations/**'
+
+perspectives:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/perspectives/**'
+
+retrospective:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/retrospective/**'
+
+utility:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/utility/**'
+
+# Specific Agents
+security:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/perspectives/alex.md'
+      - any-glob-to-any-file: '**/security*'
+      - any-glob-to-any-file: '**/auth*'
+
+performance:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/perspectives/emma.md'
+      - any-glob-to-any-file: '**/perf*'
+      - any-glob-to-any-file: '**/benchmark*'
+
+ux:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/perspectives/sam.md'
+      - any-glob-to-any-file: '**/ui/**'
+      - any-glob-to-any-file: '**/ux/**'
+
+accessibility:
+  - changed-files:
+      - any-glob-to-any-file: 'agents/perspectives/luna.md'
+      - any-glob-to-any-file: '**/a11y*'
+      - any-glob-to-any-file: '**/accessibility*'
+
+# Configuration
+config:
+  - changed-files:
+      - any-glob-to-any-file: 'config/**'
+      - any-glob-to-any-file: '*.yaml'
+      - any-glob-to-any-file: '*.yml'
+      - any-glob-to-any-file: '.paf/**'
+
+# Documentation
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: 'docs/**'
+      - any-glob-to-any-file: '*.md'
+      - any-glob-to-any-file: 'README*'
+      - any-glob-to-any-file: 'CHANGELOG*'
+
+# GitHub Integration
+github:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+      - any-glob-to-any-file: 'agents/utility/gideon.md'
+
+# Workflows
+workflow:
+  - changed-files:
+      - any-glob-to-any-file: 'workflows/**'
+
+# Scripts
+scripts:
+  - changed-files:
+      - any-glob-to-any-file: 'scripts/**'
+      - any-glob-to-any-file: '*.sh'
+
+# Templates
+templates:
+  - changed-files:
+      - any-glob-to-any-file: 'templates/**'
+
+# Build System
+build:
+  - changed-files:
+      - any-glob-to-any-file: '**/build*'
+      - any-glob-to-any-file: '**/Makefile'
+      - any-glob-to-any-file: '**/package.json'
+
+# Testing
+testing:
+  - changed-files:
+      - any-glob-to-any-file: 'tests/**'
+      - any-glob-to-any-file: '**/*.test.*'
+      - any-glob-to-any-file: '**/*.spec.*'
+
+# Dependencies
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: 'package.json'
+      - any-glob-to-any-file: 'package-lock.json'
+      - any-glob-to-any-file: 'yarn.lock'
+      - any-glob-to-any-file: 'pnpm-lock.yaml'
+
+# Breaking Changes
+breaking-change:
+  - changed-files:
+      - any-glob-to-any-file: 'VERSION'
+      - any-glob-to-any-file: '**/BREAKING*'

@@ -1,0 +1,63 @@
+# PAF Workflow: Retrospective
+# Sprint/Feature Retrospective
+
+name: retrospective
+version: 2.0.0
+description: "Retrospective: Metrics, process analysis, documentation, action items"
+
+default_timeout: 180
+
+# All agents must follow ~/.paf/docs/AGENT_PROTOCOL.md!
+
+phases:
+  - id: metrics
+    name: "Metrics Collection"
+    description: "Collect data and metrics"
+    agents:
+      - ben     # Data Analyst - Metrics Collection
+      - george  # 📋 Aggregator - Sprint Overview
+    mode: parallel
+    communication: .paf/COMMS.md
+
+  - id: process
+    name: "Process Analysis"
+    description: "Process analysis and bottleneck identification"
+    agents:
+      - otto    # Process Optimizer - Efficiency Analysis
+      - nina    # 🎯 Technical PM (Triage) - Priority Review
+    mode: parallel
+    depends_on: [metrics]
+    communication: .paf/COMMS.md
+
+  - id: documentation
+    name: "Documentation Review"
+    description: "Check documentation status"
+    agents:
+      - docu    # Documentation Generator - Auto-Docs
+      - leo     # 📚 Technical Writer - Doc Quality
+    mode: parallel
+    depends_on: [process]
+    communication: .paf/COMMS.md
+    
+  - id: feedback
+    name: "Feedback Collection"
+    description: "User/Stakeholder Feedback"
+    agents:
+      - feedback # Feedback Collector - User Voice
+      - iris     # Innovation Scout - User Insights
+    mode: parallel
+    depends_on: [documentation]
+    communication: .paf/COMMS.md
+    
+  - id: synthesis
+    name: "Retrospective Synthesis"
+    description: "Summarize everything, action items"
+    agents:
+      - george  # 📋 Aggregator - Final Summary
+    mode: sequential
+    depends_on: [feedback]
+    communication: .paf/COMMS.md
+
+aggregator: george
+
+protocol: ~/.paf/docs/AGENT_PROTOCOL.md

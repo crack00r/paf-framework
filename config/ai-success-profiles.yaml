@@ -1,0 +1,513 @@
+# ============================================================================
+# PAF FRAMEWORK - AI Success Profiles v4.4
+# ============================================================================
+# Contains empirical data about Claude's success rates across different
+# analysis types and agent specializations.
+# ============================================================================
+
+version: "2.1"
+meta:
+  description: "Claude optimization metrics for PAF Enterprise Agents"
+  framework: "PAF"
+  last_updated: "2026-01-10"
+  total_agents: 38
+
+# ============================================================================
+# PERSPECTIVE AGENTS (10 Cross-Cutting Reviewers)
+# ============================================================================
+
+perspective_agents:
+  alex:
+    name: "Alex"
+    emoji: "🔒"
+    specialty: "Security Analyst"
+    motto: "Trust nothing, verify everything."
+    description: "Security expert - OWASP, vulnerabilities, auth, DSGVO"
+    success_rate: 0.92
+    best_for:
+      - "Vulnerability assessment"
+      - "Authentication flows"
+      - "OWASP Top 10 compliance"
+      - "DSGVO/GDPR review"
+      - "Input validation"
+    optimal_context:
+      - "Auth implementation"
+      - "Data flows"
+      - "API endpoints"
+    
+  emma:
+    name: "Emma"
+    emoji: "⚡"
+    specialty: "Performance Engineer"
+    motto: "Measure twice, optimize once."
+    description: "Performance expert - latency, N+1, caching, Core Web Vitals"
+    success_rate: 0.89
+    best_for:
+      - "N+1 query detection"
+      - "Caching strategy"
+      - "Database optimization"
+      - "Core Web Vitals"
+      - "Memory profiling"
+    optimal_context:
+      - "Database queries"
+      - "API response times"
+      - "Frontend bundles"
+    
+  sam:
+    name: "Sam"
+    emoji: "🎨"
+    specialty: "UX Designer"
+    motto: "Design for humans, not for specs."
+    description: "UX expert - usability, user flows, states, Nielsen heuristics"
+    success_rate: 0.87
+    best_for:
+      - "Usability review"
+      - "User flow analysis"
+      - "Error state design"
+      - "Nielsen heuristics"
+      - "State coverage"
+    optimal_context:
+      - "User flows"
+      - "UI mockups"
+      - "User personas"
+    
+  david:
+    name: "David"
+    emoji: "🔀"
+    specialty: "Solutions Architect"
+    motto: "Build for scale, design for change."
+    description: "Scalability expert - architecture, microservices, load handling"
+    success_rate: 0.90
+    best_for:
+      - "Architecture review"
+      - "Scalability assessment"
+      - "Microservices patterns"
+      - "Load balancing"
+      - "Horizontal scaling"
+    optimal_context:
+      - "System architecture"
+      - "Traffic patterns"
+      - "Growth projections"
+    
+  max:
+    name: "Max"
+    emoji: "🔧"
+    specialty: "Senior Developer"
+    motto: "Code is read more than written."
+    description: "Maintainability expert - SOLID, code quality, tech debt"
+    success_rate: 0.90
+    best_for:
+      - "Code quality review"
+      - "SOLID principles"
+      - "Tech debt analysis"
+      - "Code smell detection"
+      - "Refactoring suggestions"
+    optimal_context:
+      - "Source code"
+      - "Architecture decisions"
+      - "Dependency graph"
+    
+  luna:
+    name: "Luna"
+    emoji: "♿"
+    specialty: "Accessibility Expert"
+    motto: "The web is for everyone."
+    description: "A11y expert - WCAG 2.1 AA, screen reader, keyboard nav"
+    success_rate: 0.91
+    best_for:
+      - "WCAG 2.1 compliance"
+      - "Screen reader testing"
+      - "Keyboard navigation"
+      - "Color contrast"
+      - "ARIA implementation"
+    optimal_context:
+      - "HTML structure"
+      - "UI components"
+      - "Form implementations"
+    
+  tom:
+    name: "Tom"
+    emoji: "💰"
+    specialty: "FinOps Engineer"
+    motto: "Every byte has a price tag."
+    description: "Cost expert - cloud costs, resource optimization, FinOps"
+    success_rate: 0.86
+    best_for:
+      - "Cloud cost analysis"
+      - "Resource right-sizing"
+      - "Reserved vs on-demand"
+      - "Cost optimization"
+      - "Budget forecasting"
+    optimal_context:
+      - "Cloud architecture"
+      - "Usage patterns"
+      - "Billing data"
+    
+  nina:
+    name: "Nina"
+    emoji: "🎯"
+    specialty: "Technical Project Manager"
+    motto: "Focus on what matters most."
+    description: "Triage expert - prioritization, risk assessment, go/no-go"
+    success_rate: 0.88
+    best_for:
+      - "Issue prioritization"
+      - "Risk assessment"
+      - "Go/No-Go decisions"
+      - "Effort estimation"
+      - "Impact analysis"
+    optimal_context:
+      - "All agent findings"
+      - "Business context"
+      - "Timeline constraints"
+    
+  leo:
+    name: "Leo"
+    emoji: "📚"
+    specialty: "Technical Writer"
+    motto: "If it's not documented, it doesn't exist."
+    description: "Documentation expert - README, API docs, code comments"
+    success_rate: 0.87
+    best_for:
+      - "README quality"
+      - "API documentation"
+      - "Code comments"
+      - "Architecture docs"
+      - "Onboarding guides"
+    optimal_context:
+      - "Existing docs"
+      - "Code structure"
+      - "API definitions"
+    
+  ava:
+    name: "Ava"
+    emoji: "💡"
+    specialty: "Innovation Lead"
+    motto: "Today's innovation is tomorrow's standard."
+    description: "Innovation expert - emerging tech, alternatives, future-proofing"
+    success_rate: 0.84
+    best_for:
+      - "Tech alternatives"
+      - "Emerging solutions"
+      - "Future-proofing"
+      - "Innovation opportunities"
+      - "Industry trends"
+    optimal_context:
+      - "Current stack"
+      - "Pain points"
+      - "Industry context"
+
+# ============================================================================
+# SDLC TEAM AGENTS
+# ============================================================================
+
+sdlc_agents:
+  # Discovery Phase
+  ben:
+    name: "Ben"
+    specialty: "Data Analyst"
+    description: "Analytics, metrics, KPIs, data patterns"
+    success_rate: 0.86
+    
+  maya:
+    name: "Maya"
+    specialty: "Product Manager"
+    description: "Requirements, user stories, prioritization"
+    success_rate: 0.87
+    
+  iris:
+    name: "Iris"
+    specialty: "Innovation Scout"
+    description: "Trend watching, emerging tech, innovation opportunities"
+    success_rate: 0.85
+
+  # Planning Phase
+  sophia:
+    name: "Sophia"
+    specialty: "Software Architect"
+    description: "System design, ADRs, architecture patterns"
+    success_rate: 0.90
+    
+  michael:
+    name: "Michael"
+    specialty: "Tech Lead"
+    description: "Technical planning, task breakdown"
+    success_rate: 0.88
+    
+  kai:
+    name: "Kai"
+    specialty: "Project Manager"
+    description: "Timeline, resources, dependencies"
+    success_rate: 0.86
+
+  # Implementation Phase
+  anna:
+    name: "Anna"
+    specialty: "Senior Developer"
+    description: "Complex implementations, code standards"
+    success_rate: 0.89
+    
+  chris:
+    name: "Chris"
+    specialty: "Full-Stack Developer"
+    description: "Feature development, integration"
+    success_rate: 0.87
+    
+  dan:
+    name: "Dan"
+    specialty: "Backend Developer"
+    description: "APIs, databases, services"
+    success_rate: 0.88
+    
+  sarah:
+    name: "Sarah"
+    specialty: "Lead Implementer"
+    description: "Lead Implementer with spawning authority, TypeScript, full-stack"
+    success_rate: 0.87
+    
+  tina:
+    name: "Tina"
+    specialty: "QA Engineer"
+    description: "Testing, test automation, quality"
+    success_rate: 0.89
+
+  # Review Phase
+  rachel:
+    name: "Rachel"
+    specialty: "Code Review Lead"
+    description: "Code quality, review coordination"
+    success_rate: 0.90
+    
+  stan:
+    name: "Stan"
+    specialty: "Standards Checker"
+    description: "Coding standards, best practices"
+    success_rate: 0.88
+    
+  scanner:
+    name: "Scanner"
+    specialty: "Security Scanner"
+    description: "Automated security scanning"
+    success_rate: 0.91
+    
+  perf:
+    name: "Perf"
+    specialty: "Performance Analyzer"
+    description: "Performance testing, benchmarks"
+    success_rate: 0.87
+
+  # Deployment Phase
+  tony:
+    name: "Tony"
+    specialty: "DevOps Engineer"
+    description: "CI/CD, infrastructure, automation"
+    success_rate: 0.88
+    
+  rel:
+    name: "Rel"
+    specialty: "Release Manager"
+    description: "Release coordination, versioning"
+    success_rate: 0.86
+    
+  miggy:
+    name: "Miggy"
+    specialty: "Migration Specialist"
+    description: "Database migrations, data integrity"
+    success_rate: 0.85
+
+  # Operations Phase
+  inci:
+    name: "Inci"
+    specialty: "Incident Manager"
+    description: "Incident response, root cause analysis"
+    success_rate: 0.87
+    
+  monitor:
+    name: "Monitor"
+    specialty: "Monitoring Agent"
+    description: "System health, alerting, observability"
+    success_rate: 0.88
+    
+  feedback:
+    name: "Feedback"
+    specialty: "Feedback Collector"
+    description: "User feedback, feature requests"
+    success_rate: 0.84
+
+  # Retrospective Phase
+  george:
+    name: "George"
+    emoji: "📋"
+    specialty: "Scrum Master & Aggregator"
+    description: "Findings aggregation, summary reports"
+    success_rate: 0.90
+    
+  otto:
+    name: "Otto"
+    specialty: "Process Optimizer"
+    description: "Process improvements, efficiency"
+    success_rate: 0.85
+    
+  docu:
+    name: "Docu"
+    specialty: "Documentation Generator"
+    description: "Auto-generated documentation"
+    success_rate: 0.86
+
+# ============================================================================
+# ORCHESTRATION AGENTS
+# ============================================================================
+
+orchestration_agents:
+  cto:
+    name: "CTO"
+    emoji: "🎪"
+    specialty: "Chief Technology Officer"
+    description: "Central orchestrator - spawns and coordinates all agents"
+    success_rate: 0.95
+    best_for:
+      - "Multi-agent orchestration"
+      - "Workflow coordination"
+      - "Agent spawning"
+      - "Build preset selection"
+    optimal_context:
+      - "Complex tasks"
+      - "Multi-phase reviews"
+      - "Full SDLC flows"
+
+# ============================================================================
+# UTILITY AGENTS
+# ============================================================================
+
+utility_agents:
+  bug-fixer:
+    name: "Bug-Fixer"
+    emoji: "🐛"
+    specialty: "Bug Fix Agent"
+    description: "Automated bug investigation and fixing"
+    success_rate: 0.84
+    best_for:
+      - "Bug analysis"
+      - "Quick fixes"
+      - "Error investigation"
+    optimal_context:
+      - "Bug reports"
+      - "Error logs"
+      - "Failing tests"
+
+  validator:
+    name: "Validator"
+    emoji: "✅"
+    specialty: "Build Validator"
+    description: "Build and deployment validation"
+    success_rate: 0.87
+    best_for:
+      - "Build verification"
+      - "Deployment checks"
+      - "CI/CD validation"
+    optimal_context:
+      - "Pre-release"
+      - "Post-deployment"
+      - "CI pipelines"
+
+  gideon:
+    name: "Gideon"
+    emoji: "🛠️"
+    specialty: "GitHub Setup Agent"
+    description: "One-time GitHub system bootstrap (labels, boards, templates)"
+    success_rate: 0.88
+    best_for:
+      - "GitHub label setup"
+      - "Project board creation"
+      - "Issue template installation"
+    optimal_context:
+      - "First-time setup"
+      - "Repository initialization"
+
+# ============================================================================
+# OPTIMAL AGENT COMBINATIONS
+# ============================================================================
+
+optimal_combinations:
+  quick_review:
+    name: "Quick Review"
+    agents: [alex, max, nina, emma]
+    combined_success_rate: 0.90
+    description: "Security + Maintainability + Triage + Performance"
+    best_for: "PR reviews, quick checks"
+    
+  security_audit:
+    name: "Security Audit"
+    agents: [alex, max, scanner, david]
+    combined_success_rate: 0.91
+    description: "Security + Maintainability + Scanner + Architecture"
+    best_for: "Security deep dives"
+    
+  performance_review:
+    name: "Performance Review"
+    agents: [emma, david, perf, tom]
+    combined_success_rate: 0.88
+    description: "Performance + Scalability + Perf Analyzer + Cost"
+    best_for: "Performance optimization"
+    
+  ux_review:
+    name: "UX Review"
+    agents: [sam, luna, leo, iris]
+    combined_success_rate: 0.87
+    description: "UX + Accessibility + Docs + Research"
+    best_for: "User experience assessment"
+    
+  architecture_review:
+    name: "Architecture Review"
+    agents: [david, sophia, max, tom]
+    combined_success_rate: 0.89
+    description: "Scalability + Architect + Maintainability + Cost"
+    best_for: "System design reviews"
+    
+  full_perspective:
+    name: "Full Perspective Review"
+    agents: [alex, emma, sam, david, max, luna, tom, nina, leo, ava]
+    combined_success_rate: 0.88
+    description: "All 10 perspective agents"
+    best_for: "Major releases, comprehensive reviews"
+
+# ============================================================================
+# ANALYSIS TYPE PROFILES
+# ============================================================================
+
+analysis_profiles:
+  security_analysis:
+    lead_agent: alex
+    supporting_agents: [max, scanner]
+    claude_success_rate: 0.92
+    typical_analysis_time: "3-5 minutes"
+
+  performance_analysis:
+    lead_agent: emma
+    supporting_agents: [david, perf]
+    claude_success_rate: 0.89
+    typical_analysis_time: "3-5 minutes"
+
+  ux_analysis:
+    lead_agent: sam
+    supporting_agents: [luna, iris]
+    claude_success_rate: 0.87
+    typical_analysis_time: "2-4 minutes"
+
+  architecture_analysis:
+    lead_agent: david
+    supporting_agents: [sophia, max]
+    claude_success_rate: 0.90
+    typical_analysis_time: "4-6 minutes"
+
+  accessibility_analysis:
+    lead_agent: luna
+    supporting_agents: [sam, leo]
+    claude_success_rate: 0.91
+    typical_analysis_time: "3-5 minutes"
+
+  documentation_analysis:
+    lead_agent: leo
+    supporting_agents: [docu, max]
+    claude_success_rate: 0.87
+    typical_analysis_time: "2-4 minutes"

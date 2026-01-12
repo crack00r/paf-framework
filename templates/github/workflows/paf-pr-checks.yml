@@ -1,0 +1,141 @@
+# PAF PR Checks Workflow
+# Validates PRs before merge
+
+name: PAF PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  validate-pr:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Check PR Title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            
+            // Valid prefixes
+            const validPrefixes = [
+              'feat:', 'fix:', 'docs:', 'style:', 'refactor:',
+              'perf:', 'test:', 'build:', 'ci:', 'chore:', 'revert:',
+              'Fix:', 'Feat:', 'Docs:', // Also allow capitalized
+              '[SEC-', '[PERF-', '[UX-', '[MAINT-', '[A11Y-', // Agent prefixes
+              '[COST-', '[DOC-', '[IDEA-', '[TASK-', '[BUG-',
+              'Merge', 'Release' // Special cases
+            ];
+            
+            const isValid = validPrefixes.some(prefix => title.startsWith(prefix));
+            
+            if (!isValid) {
+              core.setFailed(`PR title must start with a valid prefix.\n` +
+                `Valid prefixes: ${validPrefixes.slice(0, 11).join(', ')}\n` +
+                `Or agent prefixes like: [SEC-001], [PERF-002], etc.`);
+            }
+
+      - name: Check for linked issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            
+            // Check for issue references
+            const issuePatterns = [
+              /fixes #\d+/i,
+              /closes #\d+/i,
+              /resolves #\d+/i,
+              /relates to #\d+/i,
+              /related: #\d+/i,
+              /#\d+/
+            ];
+            
+            const hasIssueRef = issuePatterns.some(pattern => pattern.test(body));
+            
+            if (!hasIssueRef) {
+              core.warning('No linked issue found in PR description. Consider linking an issue.');
+            }
+
+      - name: Check PR size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            const total = pr.additions + pr.deletions;
+            
+            if (total > 1000) {
+              core.warning(`⚠️ Large PR detected (${total} lines changed). Consider breaking it up.`);
+            }
+            
+            if (total > 2000) {
+              core.setFailed(`PR is too large (${total} lines). Please split into smaller PRs.`);
+            }
+
+  check-conflicts:
+    name: Check for Conflicts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check mergeable state
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            if (pr.mergeable === false) {
+              core.setFailed('PR has merge conflicts. Please resolve them before merging.');
+            }
+            
+            if (pr.mergeable_state === 'dirty') {
+              core.setFailed('PR has conflicts that need to be resolved.');
+            }
+
+  label-check:
+    name: Check Labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            
+            // Check for at least one type label
+            const typeLabels = ['bug', 'feature', 'documentation', 'tech-debt', 'security', 'performance'];
+            const hasTypeLabel = labels.some(l => typeLabels.includes(l));
+            
+            if (!hasTypeLabel && labels.length === 0) {
+              core.warning('PR has no labels. Consider adding appropriate labels.');
+            }
+
+  summary:
+    name: PR Summary
+    runs-on: ubuntu-latest
+    needs: [validate-pr, check-conflicts, label-check]
+    if: always()
+    steps:
+      - name: Create summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            let summary = `## PR Check Summary\n\n`;
+            summary += `| Check | Status |\n`;
+            summary += `|-------|--------|\n`;
+            summary += `| Title Format | ${'${{ needs.validate-pr.result }}' === 'success' ? '✅' : '❌'} |\n`;
+            summary += `| No Conflicts | ${'${{ needs.check-conflicts.result }}' === 'success' ? '✅' : '❌'} |\n`;
+            summary += `| Labels | ${'${{ needs.label-check.result }}' === 'success' ? '✅' : '⚠️'} |\n`;
+            
+            console.log(summary);

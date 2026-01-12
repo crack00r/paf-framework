@@ -1,0 +1,94 @@
+name: "📋 Task"
+description: "Create a development task"
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Create a task for sprint planning and tracking.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Task Type"
+      description: "What kind of task is this?"
+      options:
+        - "Implementation"
+        - "Refactoring"
+        - "Testing"
+        - "Documentation"
+        - "Research"
+        - "DevOps"
+        - "Bug Fix"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      description: "Task priority"
+      options:
+        - "P1 - High (must have this sprint)"
+        - "P2 - Medium (should have this sprint)"
+        - "P3 - Low (nice to have)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: "Estimate"
+      description: "Estimated effort"
+      options:
+        - "XS (< 2 hours)"
+        - "S (2-4 hours)"
+        - "M (1 day)"
+        - "L (2-3 days)"
+        - "XL (1 week)"
+        - "Unknown"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Task Description"
+      description: "What needs to be done?"
+      placeholder: |
+        Describe the task in detail...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance Criteria"
+      description: "How do we know this is done?"
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Tests passing
+        - [ ] Documentation updated
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical
+    attributes:
+      label: "Technical Notes"
+      description: "Implementation details, considerations"
+      placeholder: |
+        - Files to modify: ...
+        - Dependencies: ...
+        - Migration needed: ...
+
+  - type: textarea
+    id: related
+    attributes:
+      label: "Related Issues"
+      description: "Related issues, epics, or blockers"
+      placeholder: |
+        - Parent epic: #123
+        - Blocked by: #456
+        - Related: #789

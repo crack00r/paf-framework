@@ -1,0 +1,224 @@
+# ============================================================================
+# PAF FRAMEWORK - User Preferences Configuration
+# ============================================================================
+# User-customizable settings for PAF behavior.
+# These can be overridden per-project or per-session.
+# ============================================================================
+
+version: "1.0"
+meta:
+  description: "User Preferences for PAF Framework"
+  framework: "PAF"
+  last_updated: "2026-01-10"
+
+# ============================================================================
+# GENERAL PREFERENCES
+# ============================================================================
+
+general:
+  # Default language for output
+  language: en  # en
+  
+  # Emoji usage in output
+  use_emoji: true
+  
+  # Verbosity level
+  verbosity: standard  # minimal, standard, verbose
+  
+  # Color output (for terminal)
+  color_output: true
+
+# ============================================================================
+# BUILD PREFERENCES
+# ============================================================================
+
+build:
+  # Default build preset when not specified
+  default_build: standard  # quick, standard, comprehensive
+  
+  # Lock build preset (overrides semantic understanding)
+  build_lock: null  # null, quick, standard, comprehensive
+  
+  # Fallback when intent is ambiguous
+  ambiguous_fallback: standard
+
+# ============================================================================
+# AGENT PREFERENCES
+# ============================================================================
+
+agents:
+  # Maximum parallel agents (CRITICAL: Do not increase - leads to crashes!)
+  max_parallel_agents: 4
+  
+  # Agent timeout (seconds)
+  agent_timeout: 300
+  
+  # Retry failed agents
+  retry_on_failure: true
+  max_retries: 2
+  
+  # Required agents (always include regardless of build)
+  always_include: []
+  
+  # Excluded agents (never include)
+  always_exclude: []
+  
+  # Agent model preferences
+  model_preferences:
+    default: inherit  # inherit, opus, sonnet, haiku
+    cto: inherit
+    perspectives: inherit
+    specialists: inherit
+
+# ============================================================================
+# WORKFLOW PREFERENCES
+# ============================================================================
+
+workflow:
+  # Default workflow when not specified
+  default_workflow: perspective-review
+  
+  # COMMS.md usage
+  comms_enabled: true
+  comms_path: ".paf/COMMS.md"
+  
+  # Output preferences
+  output:
+    # Where to write final reports
+    report_path: null  # null = inline, or path to file
+    
+    # Report format
+    format: markdown  # markdown, json, html
+    
+    # Include raw agent outputs
+    include_raw_outputs: false
+    
+    # Include timing information
+    include_timing: true
+
+# ============================================================================
+# QUALITY PREFERENCES
+# ============================================================================
+
+quality:
+  # Minimum quality gates
+  gates:
+    quick:
+      - "All agents complete"
+    standard:
+      - "All agents complete"
+      - "Critical issues documented"
+      - "Recommendations provided"
+    comprehensive:
+      - "All agents complete"
+      - "All issues documented"
+      - "Risk matrix complete"
+      - "Action plan included"
+  
+  # Auto-escalate build if critical issues found
+  auto_escalate: true
+  escalation_triggers:
+    - "critical security vulnerability"
+    - "data breach risk"
+    - "compliance violation"
+
+# ============================================================================
+# OUTPUT FORMAT PREFERENCES
+# ============================================================================
+
+output_format:
+  # Section formatting
+  sections:
+    use_headers: true
+    header_style: "##"  # #, ##, ###
+    
+  # List formatting
+  lists:
+    use_bullets: true
+    bullet_style: "-"  # -, *, •
+    
+  # Code block formatting
+  code_blocks:
+    language_hints: true
+    line_numbers: false
+    
+  # Table formatting
+  tables:
+    use_tables: true
+    alignment: left  # left, center, right
+    
+  # Summary boxes
+  summary_boxes:
+    enabled: true
+    style: unicode  # unicode, ascii, markdown
+
+# ============================================================================
+# NOTIFICATION PREFERENCES
+# ============================================================================
+
+notifications:
+  # Notify when analysis complete
+  on_complete: true
+  
+  # Notify on errors
+  on_error: true
+  
+  # Notify on critical findings
+  on_critical: true
+  
+  # Sound notifications
+  sound_enabled: false
+
+# ============================================================================
+# HISTORY & LOGGING
+# ============================================================================
+
+history:
+  # Keep analysis history
+  enabled: true
+  
+  # History file location
+  path: "~/.paf/history/"
+  
+  # Maximum history entries
+  max_entries: 100
+  
+  # Log level
+  log_level: info  # debug, info, warn, error
+
+# ============================================================================
+# INTEGRATION PREFERENCES
+# ============================================================================
+
+integrations:
+  # Git integration
+  git:
+    enabled: true
+    auto_detect_branch: true
+    include_diff_context: true
+    
+  # Project detection
+  project:
+    auto_detect: true
+    look_for: [package.json, Cargo.toml, pyproject.toml, go.mod, pom.xml]
+
+# ============================================================================
+# ADVANCED PREFERENCES
+# ============================================================================
+
+advanced:
+  # Debug mode
+  debug: false
+  
+  # Dry run mode (don't spawn agents)
+  dry_run: false
+  
+  # Cache settings
+  cache:
+    enabled: true
+    ttl_seconds: 3600
+    
+  # Performance tuning
+  performance:
+    lazy_loading: true
+    parallel_config_load: true

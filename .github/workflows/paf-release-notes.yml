@@ -1,0 +1,121 @@
+name: PAF Release Notes
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to generate release notes for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Previous Tag
+        id: prev_tag
+        run: |
+          CURRENT_TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 "$CURRENT_TAG^" 2>/dev/null || echo "")
+          echo "current=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
+          echo "previous=$PREV_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Release Notes
+        id: notes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const currentTag = '${{ steps.prev_tag.outputs.current }}';
+            const previousTag = '${{ steps.prev_tag.outputs.previous }}';
+            
+            // Get PRs merged since last tag
+            let query = `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged`;
+            if (previousTag) {
+              query += ` merged:>${previousTag}`;
+            }
+            
+            const prs = await github.rest.search.issuesAndPullRequests({
+              q: query,
+              sort: 'updated',
+              order: 'desc',
+              per_page: 100
+            });
+            
+            // Categorize PRs
+            const categories = {
+              '🔒 Security': [],
+              '✨ Features': [],
+              '🐛 Bug Fixes': [],
+              '⚡ Performance': [],
+              '📚 Documentation': [],
+              '🔧 Maintenance': [],
+              '🤖 Agent Findings': []
+            };
+            
+            prs.data.items.forEach(pr => {
+              const labels = pr.labels.map(l => l.name);
+              
+              if (labels.some(l => l.includes('security') || l.includes('🔒'))) {
+                categories['🔒 Security'].push(pr);
+              } else if (labels.some(l => l.includes('feature') || l.includes('enhancement'))) {
+                categories['✨ Features'].push(pr);
+              } else if (labels.some(l => l.includes('bug') || l.includes('fix'))) {
+                categories['🐛 Bug Fixes'].push(pr);
+              } else if (labels.some(l => l.includes('performance') || l.includes('⚡'))) {
+                categories['⚡ Performance'].push(pr);
+              } else if (labels.some(l => l.includes('documentation') || l.includes('docs'))) {
+                categories['📚 Documentation'].push(pr);
+              } else if (labels.some(l => l.includes('finding') || l.includes('🤖'))) {
+                categories['🤖 Agent Findings'].push(pr);
+              } else {
+                categories['🔧 Maintenance'].push(pr);
+              }
+            });
+            
+            // Build release notes
+            let notes = `## What's Changed\n\n`;
+            
+            for (const [category, items] of Object.entries(categories)) {
+              if (items.length > 0) {
+                notes += `### ${category}\n\n`;
+                items.forEach(pr => {
+                  notes += `- ${pr.title} (#${pr.number}) @${pr.user.login}\n`;
+                });
+                notes += '\n';
+              }
+            }
+            
+            // Add comparison link
+            if (previousTag) {
+              notes += `\n**Full Changelog**: https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${previousTag}...${currentTag}\n`;
+            }
+            
+            return notes;
+
+      - name: Create Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ steps.prev_tag.outputs.current }}';
+            const notes = ${{ steps.notes.outputs.result }};
+            
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: `Release ${tag}`,
+              body: notes,
+              draft: false,
+              prerelease: tag.includes('-')
+            });

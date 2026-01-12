@@ -1,0 +1,80 @@
+# PAF Framework .gitignore
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Runtime files
+*.log
+*.pid
+*.seed
+
+# State and memory (user-specific)
+state/
+memory/
+
+# PAF Runtime data (created during /paf-init or /paf-cto)
+# Note: In projects using PAF, .paf/GITHUB_SYSTEM.md should be committed
+# but for the PAF framework repo itself, ignore everything
+.paf/
+
+# Local configuration overrides
+config/local.yaml
+config/*.local.yaml
+
+# Plugin data (keep structure, ignore data)
+plugins/*/data/
+plugins/*/.cache/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+
+# Test output
+test-results/
+coverage/
+
+# Build artifacts (if any)
+dist/
+build/
+
+# Archive and planning docs (not needed for operation)
+docs/archive/
+docs/planning/
+
+# Lock files (keep package-lock.json only)
+bun.lock
+
+# Plugin marketing assets (not needed for operation)
+plugins/*/assets/*.png
+plugins/*/assets/*.jpg
+
+# Node modules (if using npm for anything)
+node_modules/
+
+# Python (if using Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.env

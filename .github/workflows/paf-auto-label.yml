@@ -1,0 +1,91 @@
+name: PAF Auto-Label
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Changed Files
+        id: changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100
+            });
+            
+            const filenames = files.map(f => f.filename);
+            return filenames;
+
+      - name: Apply Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = ${{ steps.changed.outputs.result }};
+            const labelsToAdd = new Set();
+            
+            // Define label rules based on file paths
+            const rules = [
+              { pattern: /^agents\//, label: '🤖 agent' },
+              { pattern: /^agents\/perspectives\/alex/, label: '🔒 alex' },
+              { pattern: /^agents\/perspectives\/emma/, label: '⚡ emma' },
+              { pattern: /^agents\/perspectives\/sam/, label: '🎨 sam' },
+              { pattern: /^agents\/perspectives\/david/, label: '🔀 david' },
+              { pattern: /^agents\/perspectives\/max/, label: '🔧 max' },
+              { pattern: /^agents\/perspectives\/luna/, label: '♿ luna' },
+              { pattern: /^agents\/perspectives\/tom/, label: '💰 tom' },
+              { pattern: /^agents\/perspectives\/nina/, label: '🎯 nina' },
+              { pattern: /^agents\/perspectives\/leo/, label: '📚 leo' },
+              { pattern: /^agents\/perspectives\/ava/, label: '💡 ava' },
+              { pattern: /^docs\//, label: 'documentation' },
+              { pattern: /^config\//, label: 'configuration' },
+              { pattern: /^scripts\//, label: 'infrastructure' },
+              { pattern: /^\.github\/workflows\//, label: 'ci' },
+              { pattern: /^\.github\/ISSUE_TEMPLATE\//, label: 'templates' },
+              { pattern: /security/i, label: 'security' },
+              { pattern: /test/i, label: 'testing' },
+              { pattern: /\.md$/, label: 'documentation' },
+              { pattern: /\.ya?ml$/, label: 'configuration' },
+              { pattern: /\.sh$/, label: 'infrastructure' }
+            ];
+            
+            // Apply rules
+            files.forEach(file => {
+              rules.forEach(rule => {
+                if (rule.pattern.test(file)) {
+                  labelsToAdd.add(rule.label);
+                }
+              });
+            });
+            
+            // Add labels if any matched
+            if (labelsToAdd.size > 0) {
+              const labels = Array.from(labelsToAdd);
+              
+              try {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number,
+                  labels: labels
+                });
+                
+                core.info(`Added labels: ${labels.join(', ')}`);
+              } catch (e) {
+                // Labels might not exist yet
+                core.warning(`Could not add some labels: ${e.message}`);
+              }
+            }

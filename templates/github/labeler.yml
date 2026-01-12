@@ -1,0 +1,103 @@
+# Labeler configuration for paf-auto-label workflow
+# Maps file paths to labels
+
+# Documentation
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/**/*'
+      - '*.md'
+      - 'README*'
+
+# Security
+security:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/security/**'
+      - '**/auth/**'
+      - '**/authentication/**'
+      - '**/authorization/**'
+      - '**/crypto/**'
+
+# API
+api:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/api/**'
+      - '**/routes/**'
+      - '**/endpoints/**'
+      - '**/*.api.*'
+
+# Testing
+testing:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**'
+      - '**/*.test.*'
+      - '**/*.spec.*'
+      - '**/test/**'
+      - '**/__tests__/**'
+
+# Infrastructure
+infrastructure:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
+      - 'Dockerfile*'
+      - 'docker-compose*'
+      - '**/infra/**'
+      - '**/terraform/**'
+      - '**/kubernetes/**'
+      - '**/k8s/**'
+
+# Configuration
+configuration:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'config/**'
+      - '*.config.*'
+      - '*.yaml'
+      - '*.yml'
+      - '*.json'
+      - '.env*'
+
+# Frontend
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/components/**'
+      - '**/pages/**'
+      - '**/views/**'
+      - '**/*.tsx'
+      - '**/*.jsx'
+      - '**/*.vue'
+      - '**/*.css'
+      - '**/*.scss'
+
+# Backend
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/services/**'
+      - '**/controllers/**'
+      - '**/models/**'
+      - '**/repositories/**'
+
+# Database
+database:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/migrations/**'
+      - '**/seeds/**'
+      - '**/schema/**'
+      - '**/*.sql'
+
+# PAF specific
+paf:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'agents/**'
+      - 'workflows/**'
+      - 'templates/**'
+      - 'COMMS.md'
+      - 'SKILL.md'

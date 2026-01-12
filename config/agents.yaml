@@ -1,0 +1,198 @@
+# PAF Global Configuration
+# Schema Version: 1.0
+last_updated: "2026-01-12"
+
+# =============================================================================
+# MODEL SETTINGS
+# =============================================================================
+model:
+  default: claude-opus-4-5-20251101
+  fallback: claude-sonnet-4-20250514
+  temperature: 0.7
+  max_tokens: 16000
+
+# =============================================================================
+# GITHUB INTEGRATION
+# =============================================================================
+github:
+  enabled: true
+  auto_create_issues: true
+  auto_labels: true
+  project_board: true
+  
+  labels:
+    agent: "🤖 agent"
+    discovery: "🔬 discovery"
+    planning: "📋 planning"
+    implementation: "🛠️ implementation"
+    review: "👀 review"
+    deployment: "🚀 deployment"
+    operations: "📈 operations"
+    retrospective: "📊 retrospective"
+    blocker: "🚨 blocker"
+    decision: "✅ decision"
+
+# =============================================================================
+# COMMUNICATION
+# =============================================================================
+communication:
+  file: COMMS.md
+  process_file: PROCESS.md
+  max_section_lines: 50
+  archive_after_days: 7
+
+# =============================================================================
+# WORKFLOWS
+# =============================================================================
+workflows:
+  default_timeout_minutes: 30
+  parallel_agents: true
+  auto_handoff: true
+
+# =============================================================================
+# AGENTS (38 Total)
+# =============================================================================
+agents:
+  # Orchestration (1 Agent)
+  orchestration:
+    - name: cto
+      role: "🎪 Chief Technology Officer"
+      file: agents/orchestration/cto.md
+
+  # Discovery Phase (3 Agents)
+  discovery:
+    - name: maya
+      role: "📝 Product Manager"
+      file: agents/discovery/maya.md
+    - name: iris
+      role: "🔬 Innovation Scout"
+      file: agents/discovery/iris.md
+    - name: ben
+      role: "📊 Data Analyst"
+      file: agents/discovery/ben.md
+
+  # Planning Phase (3 Agents)
+  planning:
+    - name: sophia
+      role: "🏛️ Software Architect"
+      file: agents/planning/sophia.md
+    - name: michael
+      role: "👨‍💻 Tech Lead"
+      file: agents/planning/michael.md
+    - name: kai
+      role: "📅 Project Manager"
+      file: agents/planning/kai.md
+
+  # Perspectives - Cross-Cutting Reviewers (10 Agents)
+  perspectives:
+    - name: alex
+      role: "🔒 Security Analyst"
+      file: agents/perspectives/alex.md
+    - name: emma
+      role: "⚡ Performance Engineer"
+      file: agents/perspectives/emma.md
+    - name: sam
+      role: "🎨 UX Designer"
+      file: agents/perspectives/sam.md
+    - name: david
+      role: "🔀 Solutions Architect (Scalability)"
+      file: agents/perspectives/david.md
+    - name: max
+      role: "🔧 Senior Developer (Maintainability)"
+      file: agents/perspectives/max.md
+    - name: luna
+      role: "♿ Accessibility Expert"
+      file: agents/perspectives/luna.md
+    - name: tom
+      role: "💰 FinOps Engineer"
+      file: agents/perspectives/tom.md
+    - name: nina
+      role: "🎯 Technical PM (Triage)"
+      file: agents/perspectives/nina.md
+    - name: leo
+      role: "📚 Technical Writer"
+      file: agents/perspectives/leo.md
+    - name: ava
+      role: "💡 Innovation Lead"
+      file: agents/perspectives/ava.md
+
+  # Implementation Phase (5 Agents)
+  implementation:
+    - name: anna
+      role: "🔌 Backend Developer (API)"
+      file: agents/implementation/anna.md
+    - name: chris
+      role: "🧩 Frontend Developer"
+      file: agents/implementation/chris.md
+    - name: dan
+      role: "🗄️ Database Developer"
+      file: agents/implementation/dan.md
+    - name: sarah
+      role: "💻 Lead Implementer (Team Lead)"
+      file: agents/implementation/sarah.md
+    - name: tina
+      role: "🧪 QA Engineer"
+      file: agents/implementation/tina.md
+
+  # Review Phase (4 Agents)
+  review:
+    - name: rachel
+      role: "👀 Code Review Lead"
+      file: agents/review/rachel.md
+    - name: stan
+      role: "📏 Standards Enforcer"
+      file: agents/review/stan.md
+    - name: scanner
+      role: "🔍 Security Scanner"
+      file: agents/review/scanner.md
+    - name: perf
+      role: "⏱️ Performance Analyzer"
+      file: agents/review/perf.md
+
+  # Deployment Phase (3 Agents)
+  deployment:
+    - name: tony
+      role: "🚀 DevOps Engineer"
+      file: agents/deployment/tony.md
+    - name: rel
+      role: "📦 Release Manager"
+      file: agents/deployment/rel.md
+    - name: miggy
+      role: "🔄 Migration Specialist"
+      file: agents/deployment/miggy.md
+
+  # Operations Phase (3 Agents)
+  operations:
+    - name: inci
+      role: "🚨 Incident Manager"
+      file: agents/operations/inci.md
+    - name: monitor
+      role: "📈 Monitoring Specialist"
+      file: agents/operations/monitor.md
+    - name: feedback
+      role: "💬 Feedback Analyst"
+      file: agents/operations/feedback.md
+
+  # Retrospective Phase (3 Agents)
+  retrospective:
+    - name: george
+      role: "📋 Aggregator"
+      file: agents/retrospective/george.md
+    - name: otto
+      role: "⚙️ Process Optimizer"
+      file: agents/retrospective/otto.md
+    - name: docu
+      role: "📖 Documentation Manager"
+      file: agents/retrospective/docu.md
+
+  # Utility Agents (3 Agents)
+  utility:
+    - name: gideon
+      role: "🛠️ GitHub Setup Agent"
+      file: agents/utility/gideon.md
+    - name: bug-fixer
+      role: "🐛 Auto-Fix Agent"
+      file: agents/utility/bug-fixer.md
+    - name: validator
+      role: "✅ Build Validator"
+      file: agents/utility/validator.md

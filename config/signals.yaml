@@ -1,0 +1,387 @@
+# ============================================================================
+# PAF FRAMEWORK - Workflow and Build Reference
+# ============================================================================
+# Documentation for Claude to understand available workflows and build levels.
+# Claude interprets user intent semantically - no pattern matching needed.
+# ============================================================================
+
+version: "2.0"
+meta:
+  description: "Workflow and Build Reference for CTO Orchestrator"
+  note: "This file is documentation, not detection rules. Claude understands intent naturally."
+  framework: "PAF"
+  last_updated: "2026-01-12"
+
+# ============================================================================
+# WORKFLOWS
+# ============================================================================
+# Each workflow represents a specialized SDLC process with specific agent teams
+
+workflows:
+  # --------------------------------------------------------------------------
+  # Perspective Review (Default)
+  # --------------------------------------------------------------------------
+  perspective-review:
+    description: "Multi-perspective code and feature review using 10 specialized viewpoints"
+    when_to_use: |
+      Use when user wants general code review, analysis, or feedback from multiple angles.
+      Default workflow for most review requests.
+    scope:
+      - Security (Alex)
+      - Performance (Emma)
+      - UX Design (Sam)
+      - Scalability (David)
+      - Maintainability (Max)
+      - Accessibility (Luna)
+      - Cost Analysis (Tom)
+      - Triage & Prioritization (Nina)
+      - Documentation (Leo)
+      - Innovation (Ava)
+    lead_agents: [all_perspectives]
+    typical_duration: "8-12 minutes with standard build"
+    output: "10 individual perspective reports with findings and recommendations"
+
+  # --------------------------------------------------------------------------
+  # Security Audit
+  # --------------------------------------------------------------------------
+  security-audit:
+    description: "Deep security analysis focusing on vulnerabilities, authentication, authorization, and OWASP risks"
+    when_to_use: |
+      Use when user asks about security, vulnerabilities, penetration testing, or wants
+      security-focused review. Also use for compliance checks, security audits, or when
+      security is explicitly mentioned.
+    scope:
+      - OWASP Top 10 vulnerabilities
+      - Authentication and authorization flaws
+      - Data protection and encryption
+      - Input validation and sanitization
+      - Security best practices
+      - Threat modeling
+    lead_agents: [alex, scanner, stan]
+    typical_duration: "12-20 minutes with comprehensive build"
+    output: "Security findings with severity ratings (P0-P3) and remediation steps"
+
+  # --------------------------------------------------------------------------
+  # Performance Review
+  # --------------------------------------------------------------------------
+  performance-review:
+    description: "Performance analysis focusing on speed, latency, optimization, and resource usage"
+    when_to_use: |
+      Use when user mentions slow performance, wants optimization, has latency issues,
+      or asks about speed improvements. Also for load testing analysis and bottleneck detection.
+    scope:
+      - Response time analysis
+      - Database query optimization
+      - Caching strategies
+      - Resource usage (CPU, memory)
+      - Load testing insights
+      - Performance bottlenecks
+      - Scalability under load
+    lead_agents: [emma, perf]
+    typical_duration: "10-15 minutes with standard build"
+    output: "Performance metrics, bottleneck analysis, and optimization recommendations"
+
+  # --------------------------------------------------------------------------
+  # Bugfix Workflow
+  # --------------------------------------------------------------------------
+  bugfix:
+    description: "Bug investigation and resolution workflow with root cause analysis"
+    when_to_use: |
+      Use when user reports something broken, not working, or wants to fix an error.
+      Also for debugging, troubleshooting, or when user describes unexpected behavior.
+    scope:
+      - Bug reproduction analysis
+      - Root cause investigation
+      - Fix implementation
+      - Test verification
+      - Regression check
+    lead_agents: [bug-fixer, tina, ben]
+    typical_duration: "5-15 minutes depending on complexity"
+    output: "Bug analysis, root cause, implemented fix, and test verification"
+
+  # --------------------------------------------------------------------------
+  # Hotfix Workflow (Emergency Production Fix)
+  # --------------------------------------------------------------------------
+  hotfix:
+    description: "Emergency production fix workflow with fast triage and deployment"
+    when_to_use: |
+      Use for production emergencies, critical outages, or urgent production issues.
+      When user indicates production is down, broken, or needs immediate fix.
+      Prioritizes speed over thoroughness.
+    scope:
+      - Rapid triage (Nina)
+      - Emergency fix (Bug-Fixer)
+      - Fast deployment (Tony)
+      - Incident tracking (Inci)
+      - Minimal documentation
+    lead_agents: [inci, bug-fixer, tony, nina]
+    typical_duration: "5-10 minutes with quick build"
+    output: "Emergency fix deployed, incident documented, follow-up tasks created"
+    notes: "Automatically uses 'quick' build for speed. Full retrospective recommended later."
+
+  # --------------------------------------------------------------------------
+  # Retrospective Workflow
+  # --------------------------------------------------------------------------
+  retrospective:
+    description: "Sprint retrospective and process improvement review"
+    when_to_use: |
+      Use when user wants to review what happened in a sprint, analyze lessons learned,
+      improve team processes, or conduct post-mortem analysis.
+    scope:
+      - Sprint/iteration review
+      - What went well analysis
+      - What went wrong analysis
+      - Process improvements
+      - Action items for next sprint
+      - Team collaboration insights
+    lead_agents: [george, otto, docu]
+    typical_duration: "15-20 minutes with comprehensive build"
+    output: "Retrospective report with lessons learned and actionable improvements"
+
+  # --------------------------------------------------------------------------
+  # Full Feature (Comprehensive All-Workflow Analysis)
+  # --------------------------------------------------------------------------
+  full-feature:
+    description: "Complete SDLC workflow from discovery through deployment with all 38 agents"
+    when_to_use: |
+      Use when user wants comprehensive, thorough, or complete analysis of everything.
+      Also for production releases, enterprise deployments, or when maximum thoroughness is needed.
+    scope:
+      - Discovery phase (Ben, Maya, Iris)
+      - Planning phase (Sophia, Michael, Kai)
+      - Implementation review (Sarah, Chris, Dan, Anna, Tina)
+      - Multi-perspective review (All 10 perspectives)
+      - Security audit (Alex, Scanner, Stan)
+      - Performance review (Emma, Perf)
+      - Deployment readiness (Tony, Miggy, Rel)
+      - Operations readiness (Inci, Monitor, Feedback)
+      - Retrospective (George, Otto, Docu)
+    lead_agents: [cto]
+    typical_duration: "20-30 minutes with comprehensive build"
+    output: "Complete end-to-end analysis with findings across all SDLC phases"
+    notes: "Most thorough option. Use for production releases and critical features."
+
+# ============================================================================
+# BUILDS
+# ============================================================================
+# Build levels control agent selection and analysis depth
+
+builds:
+  # --------------------------------------------------------------------------
+  # Quick Build
+  # --------------------------------------------------------------------------
+  quick:
+    description: "Fast 2-3 minute analysis with core agents only"
+    when_to_use: |
+      Use when user wants fast feedback, urgent check, quick overview, or rapid validation.
+      Also appropriate for PR reviews, sanity checks, or when time is limited.
+    characteristics:
+      duration: "2-3 minutes"
+      agent_count: "5-8 agents"
+      depth: "Surface-level analysis"
+      detail: "Key issues only"
+      thoroughness: "Basic"
+    typical_agents:
+      - Core perspective agents (Alex, Emma, Sam)
+      - Bug-Fixer for issues
+      - Validator for quick checks
+    best_for:
+      - PR reviews
+      - Quick sanity checks
+      - Urgent production hotfixes
+      - Fast feedback loops
+      - Learning and experimentation
+
+  # --------------------------------------------------------------------------
+  # Standard Build (Default)
+  # --------------------------------------------------------------------------
+  standard:
+    description: "Balanced 8-12 minute analysis with main agent team"
+    when_to_use: |
+      Use for typical code reviews, feature analysis, or general requests without
+      specific urgency or thoroughness requirements. Default choice for most workflows.
+    characteristics:
+      duration: "8-12 minutes"
+      agent_count: "15-20 agents"
+      depth: "Moderate analysis"
+      detail: "Important findings and recommendations"
+      thoroughness: "Thorough but efficient"
+    typical_agents:
+      - All 10 perspective agents
+      - Discovery team subset (Ben, Maya)
+      - Review team (Rachel, Scanner)
+      - Selected implementation agents
+    best_for:
+      - Feature reviews
+      - Code quality checks
+      - Architecture decisions
+      - Standard development workflow
+      - Regular sprint work
+    notes: "Best balance of speed and thoroughness for daily work"
+
+  # --------------------------------------------------------------------------
+  # Comprehensive Build
+  # --------------------------------------------------------------------------
+  comprehensive:
+    description: "Complete 20-30 minute analysis with all 38 agents and full depth"
+    when_to_use: |
+      Use when user wants thorough audit, complete analysis, or comprehensive review.
+      Also for production releases, enterprise deployments, compliance checks, or
+      business-critical features.
+    characteristics:
+      duration: "20-30 minutes"
+      agent_count: "30-38 agents (near-complete team)"
+      depth: "Deep dive analysis"
+      detail: "All findings, minor issues included"
+      thoroughness: "Exhaustive"
+    typical_agents:
+      - All 10 perspective agents
+      - Full discovery team (Ben, Maya, Iris)
+      - Full planning team (Sophia, Michael, Kai)
+      - Full implementation team (Sarah, Chris, Dan, Anna, Tina)
+      - Full review team (Rachel, Scanner, Stan, Perf)
+      - Deployment team (Tony, Miggy, Rel)
+      - Operations team (Inci, Monitor, Feedback)
+      - Retrospective team (George, Otto, Docu)
+      - All utility agents (Bug-Fixer, Validator)
+    best_for:
+      - Production releases
+      - Security audits
+      - Compliance reviews
+      - Enterprise deployments
+      - Business-critical features
+      - Complete system overhauls
+      - Regulatory requirements
+    notes: "Most thorough option. Includes all agents and deepest analysis."
+
+# ============================================================================
+# CONTEXT UNDERSTANDING GUIDELINES
+# ============================================================================
+# Guidance for Claude to understand user intent naturally
+
+context_guidelines:
+  urgency_interpretation:
+    high_urgency:
+      description: "User needs immediate response or has critical issue"
+      examples: "Production is down, emergency, urgent, ASAP, critical, now, immediately"
+      suggested_approach: "Use quick build or hotfix workflow. Prioritize speed."
+
+    normal_urgency:
+      description: "Standard development timeline"
+      examples: "Review this, can you check, what do you think"
+      suggested_approach: "Use standard build. Balance speed and thoroughness."
+
+    low_urgency:
+      description: "User has time for thorough analysis"
+      examples: "When you have time, no rush, thorough review, complete audit"
+      suggested_approach: "Use comprehensive build. Maximize thoroughness."
+
+  scope_interpretation:
+    large_scope:
+      description: "User wants analysis of entire codebase or system"
+      examples: "Review everything, complete audit, entire system, whole codebase, all files"
+      suggested_approach: "Use comprehensive build with full-feature workflow"
+
+    medium_scope:
+      description: "User wants analysis of specific area or feature"
+      examples: "Review this module, check this component, analyze this feature"
+      suggested_approach: "Use standard build with appropriate workflow"
+
+    small_scope:
+      description: "User wants analysis of specific file or function"
+      examples: "Look at this file, check this function, review this code snippet"
+      suggested_approach: "Use quick build with focused agent subset"
+
+  domain_interpretation:
+    security_focus:
+      description: "User mentions security concerns"
+      suggested_workflow: "security-audit"
+      key_agents: [alex, scanner, stan]
+
+    performance_focus:
+      description: "User mentions speed, latency, or optimization"
+      suggested_workflow: "performance-review"
+      key_agents: [emma, perf]
+
+    bug_focus:
+      description: "User reports something broken or not working"
+      suggested_workflow: "bugfix"
+      key_agents: [bug-fixer, tina, ben]
+
+    general_focus:
+      description: "User wants general feedback or review"
+      suggested_workflow: "perspective-review"
+      key_agents: [all_perspectives]
+
+  special_contexts:
+    production_emergency:
+      triggers: "Production down, critical outage, emergency"
+      workflow: "hotfix"
+      build: "quick"
+      priority: "immediate"
+
+    production_release:
+      triggers: "Ready to deploy, production release, going live"
+      workflow: "full-feature"
+      build: "comprehensive"
+      priority: "high"
+
+    learning_exploration:
+      triggers: "Just learning, experimenting, trying out"
+      workflow: "perspective-review"
+      build: "quick"
+      priority: "normal"
+
+    compliance_audit:
+      triggers: "Compliance, regulatory, audit, certification"
+      workflow: "full-feature"
+      build: "comprehensive"
+      priority: "high"
+
+# ============================================================================
+# DEFAULT SELECTIONS
+# ============================================================================
+
+defaults:
+  workflow: "perspective-review"
+  build: "standard"
+  reasoning: |
+    When unclear, default to perspective-review with standard build.
+    This provides balanced multi-angle analysis without overcommitting resources.
+    User can always request more thorough analysis if needed.
+
+# ============================================================================
+# NOTES FOR CTO ORCHESTRATOR
+# ============================================================================
+
+orchestrator_notes:
+  semantic_understanding: |
+    You understand natural language intent. Don't overthink or second-guess.
+    If user says "check security", use security-audit.
+    If user says "quick review", use quick build.
+    If user says "thorough audit", use comprehensive build.
+
+  when_uncertain: |
+    If genuinely uncertain between two options, prefer the less resource-intensive choice.
+    User can always request more depth if needed. Quick→Standard→Comprehensive.
+
+  user_preferences: |
+    Always respect explicit user preferences:
+    - If user says "quick", use quick build even if topic suggests comprehensive
+    - If user says "comprehensive", use comprehensive even if quick would suffice
+    - User's explicit request overrides all semantic interpretation
+
+  multilingual_support: |
+    Understand intent in any language. German "schnell" = English "quick".
+    Spanish "completo" = English "comprehensive".
+    The semantic meaning is what matters, not the specific words.
+
+  workflow_files: |
+    Workflow names in this file map to actual workflow YAML files:
+    - perspective-review → workflows/perspective-review.yaml
+    - security-audit → workflows/security-audit.yaml
+    - performance-review → workflows/performance-review.yaml
+    - bugfix → workflows/bugfix.yaml
+    - hotfix → workflows/hotfix.yaml
+    - retrospective → workflows/retrospective.yaml
+    - full-feature → workflows/full-feature.yaml (note: "full-review" request maps to "full-feature" workflow)
